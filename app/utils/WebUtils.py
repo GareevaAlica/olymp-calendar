@@ -48,9 +48,9 @@ class WebUtils():
             if not isinstance(elem.contents[0], str):
                 res[elem.contents[0].contents[0]] = elem.contents[0]['href']
             elif len(elem.contents) > 4:
-                res[elem.contents[0] + elem.contents[1].contents[0]] =\
+                res[elem.contents[0] + elem.contents[1].contents[0]] = \
                     elem.contents[1]['href']
-                res[elem.contents[0] + elem.contents[3].contents[0]] =\
+                res[elem.contents[0] + elem.contents[3].contents[0]] = \
                     elem.contents[3]['href']
             else:
                 res[elem.contents[0]] = None
@@ -64,7 +64,9 @@ class WebUtils():
         olympiad_tokens = olympiad_tokens[1::2]
 
         try:
-            olympiads = [(olympiad_token.contents[1].contents[0], olympiad_token['href']) for olympiad_token in olympiad_tokens]
+            olympiads = [
+                (olympiad_token.contents[1].contents[0], olympiad_token['href'])
+                for olympiad_token in olympiad_tokens]
         except AttributeError as err:
             print(f'Attribure Error: {err}')
             raise RuntimeError('Unknown format of webpage')
@@ -73,10 +75,9 @@ class WebUtils():
 
         return nameToLink
 
-
     @staticmethod
     def __getOlympiadsTokensFromHtml(html):
         soup = BeautifulSoup(html, 'html.parser')
-        olympiads = soup.findAll('a', attrs={'href': re.compile(r"/activity/\d*$")})
+        olympiads = soup.findAll('a',
+                                 attrs={'href': re.compile(r"/activity/\d*$")})
         return olympiads
-
