@@ -12,7 +12,7 @@ class Olympiad(db.Model):
         self.link = link
 
     def __repr__(self):
-        return '<Olympiad {}>'.format(self.name, self.link)
+        return '<Olympiad: name = {}, link = {}>'.format(self.name, self.link)
 
     def save(self):
         db.session.add(self)
@@ -43,7 +43,11 @@ class Event(db.Model):
     data_end = db.Column(db.String)
 
     def __repr__(self):
-        return '<Event {}>'.format(self.name, self.data_start, self.data_end)
+        return '<Event: olympiad_id = {}, name = {},' \
+               ' data_start = {}, data_end = {}>'.format(self.olympiad_id,
+                                                         self.name,
+                                                         self.data_start,
+                                                         self.data_end)
 
     def __init__(self, olympiad_id, name, data_start=None, data_end=None):
         self.olympiad_id = olympiad_id
