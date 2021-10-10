@@ -36,9 +36,7 @@ class WebUtils():
         htmlDoc = WebUtils.getHtmlByUrl(url)
 
         olympiad_tokens = WebUtils.__getOlympiadsTokensFromHtml(htmlDoc)
-        print(olympiad_tokens)
         olympiad_tokens = olympiad_tokens[1:]
-        print(olympiad_tokens)
 
         try:
             olympiads = [(olympiad_token.contents[1].contents[0], olympiad_token['href']) for olympiad_token in olympiad_tokens]
