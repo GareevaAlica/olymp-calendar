@@ -20,6 +20,10 @@ class Olympiad(db.Model):
         return self.id
 
     @staticmethod
+    def get_all():
+        return Olympiad.query.all()
+
+    @staticmethod
     def get_name(id):
         name = Olympiad.query.filter_by(id=id).first().name
         return name
