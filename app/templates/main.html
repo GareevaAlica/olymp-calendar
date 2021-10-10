@@ -1,3 +1,14 @@
 {% extends "base.html" %} {% block content %}
 Главная страница
+
+{% for olympiad in olympiads_list  %}
+    <br>
+    {{ olympiad.name }}, {{ olympiad.url }}:
+    {% for event in olympiad.events  %}
+        <br>
+        {{ event.name }}, {{ event.date_start }}, {{ event.date_end }}
+    {% endfor %}
+    <br>
+{% endfor %}
+
 {% endblock %}
