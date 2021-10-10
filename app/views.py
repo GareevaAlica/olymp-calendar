@@ -6,6 +6,7 @@ from app.models import Olympiad, Event
 # Главная страница.
 @app.route("/", methods=['GET', 'POST'])
 def main():
+    # список всех олимпиад
     olympiads_list = Olympiad.get_all()
     return render_template("main.html",
                            olympiads_list=olympiads_list,

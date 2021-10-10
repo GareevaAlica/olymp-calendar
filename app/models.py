@@ -2,9 +2,13 @@ from app import db
 
 
 class Olympiad(db.Model):
+    # id олимпиады в базе данных
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    # название олимпиады
     name = db.Column(db.String, unique=True, nullable=False)
+    # ссылка олимпиады на https://olimpiada.ru
     url = db.Column(db.String)
+    # события проведения олимпиады
     events = db.relationship('Event', backref='olympiad', lazy='dynamic')
 
     def __init__(self, name, url=None):
@@ -45,10 +49,15 @@ class Olympiad(db.Model):
 
 
 class Event(db.Model):
+    # id события в базе данных
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    # id олимпиады в базе данных, которой принадлежит событие
     olympiad_id = db.Column(db.Integer, db.ForeignKey('olympiad.id'))
+    # название события
     name = db.Column(db.String, nullable=False)
+    # дата начала проведения события
     date_start = db.Column(db.String)
+    # дата конца проведения события
     date_end = db.Column(db.String)
 
     def __repr__(self):
