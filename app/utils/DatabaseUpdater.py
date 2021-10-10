@@ -1,5 +1,7 @@
 from app.utils.WebUtils import WebUtils
 from app.models import Olympiad, Event
+from datetime import date
+import re
 
 
 # Класс заполнения базы данных информацией об олимпиадах
@@ -51,9 +53,10 @@ class DatabaseUpdater():
             events_list = list()
             # обработка событий в расписании олимпиады
             for name, date in events_dict.items():
+                date_start_end = self._get_date_start_end(date)
                 events_list.append({'event_name': name,
-                                    'date_start': date,
-                                    'date_end': None})
+                                    'date_start': date_start_end['date_start'],
+                                    'date_end': date_start_end['date_end']})
             olympiads_info_list.append({'olympiad_name': str(i),
                                         'olympiad_url': olympiad_url,
                                         'events': events_list})
@@ -112,3 +115,30 @@ class DatabaseUpdater():
         id = event.save()
         print(event)
         return id
+
+    def _get_date_start_end(self, date):
+        dates = re.sub('[...]', ' ', date).split()
+        date_start = None
+        date_end = None
+        if dates[0] == 'До':
+            date_start = self._transform_date(int(dates[1]), dates[2])
+        elif len(dates) == 4:
+            date_start = self._transform_date(int(dates[0]), dates[1])
+            date_end = self._transform_date(int(dates[2]), dates[3])
+        else:
+            date_start = self._transform_date(int(dates[0]), dates[2])
+            date_end = self._transform_date(int(dates[1]), dates[2])
+        return {'date_start': date_start,
+                'date_end': date_end}
+
+    @staticmethod
+    def _transform_date(day, month):
+        months_dict = dict(zip(['янв', 'фев', 'мар',
+                                'апр', 'май', 'июн',
+                                'июл', 'авг', 'сен',
+                                'окт', 'ноя', 'дек'], range(1, 13)))
+        month_number = months_dict[month]
+        year = 2021
+        if month_number < 9:
+            year = 2022
+        return date(year, month_number, day)
