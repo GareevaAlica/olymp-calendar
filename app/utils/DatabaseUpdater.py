@@ -17,11 +17,11 @@ class DatabaseUpdater():
         :return: None
         """
         # получаем информацию об олимпиадах
-        olympiads_info_list = self._get_olympiads_info_list()
+        olympiads_info_list = self.__get_olympiads_info_list()
         # сохраняем олимпиады и их события в базу данных
-        self._save_olympiads_info(olympiads_info_list)
+        self.__save_olympiads_info(olympiads_info_list)
 
-    def _get_olympiads_info_list(self):
+    def __get_olympiads_info_list(self):
         """
         Получение информацию об олимпиадах
         :return: list({'olympiad_name': string,
@@ -53,7 +53,7 @@ class DatabaseUpdater():
             events_list = list()
             # обработка событий в расписании олимпиады
             for name, date in events_dict.items():
-                date_start_end = self._get_date_start_end(date)
+                date_start_end = self.__get_date_start_end(date)
                 events_list.append({'event_name': name,
                                     'date_start': date_start_end['date_start'],
                                     'date_end': date_start_end['date_end']})
@@ -63,7 +63,7 @@ class DatabaseUpdater():
             print(olympiads_info_list[-1])
         return olympiads_info_list
 
-    def _save_olympiads_info(self, olympiads_info_list):
+    def __save_olympiads_info(self, olympiads_info_list):
         """
         Сохранение олимпиад и их событий в базу данных
         :param olympiads_info_list: информация об олимпиадах
@@ -78,16 +78,16 @@ class DatabaseUpdater():
         """
         for olympiad_info in olympiads_info_list:
             olympiad_id = \
-                self._create_olympiad(name=olympiad_info['olympiad_name'],
+                self.__create_olympiad(name=olympiad_info['olympiad_name'],
                                       url=olympiad_info['olympiad_url'])
             for event in olympiad_info['events']:
-                self._create_event(olympiad_id=olympiad_id,
+                self.__create_event(olympiad_id=olympiad_id,
                                    name=event['event_name'],
                                    date_start=event['date_start'],
                                    date_end=event['date_end'])
 
     @staticmethod
-    def _create_olympiad(name, url=None):
+    def __create_olympiad(name, url=None):
         """
         Сохранение олимпиады в базу данных
         :param name: название олимпиады
@@ -100,7 +100,7 @@ class DatabaseUpdater():
         return id
 
     @staticmethod
-    def _create_event(olympiad_id, name, date_start=None, date_end=None):
+    def __create_event(olympiad_id, name, date_start=None, date_end=None):
         """
         Сохранение события в базу данных
         :param olympiad_id: id оимпиады в базе данных,
@@ -116,23 +116,23 @@ class DatabaseUpdater():
         print(event)
         return id
 
-    def _get_date_start_end(self, date):
+    def __get_date_start_end(self, date):
         dates = re.sub('[...]', ' ', date).split()
         date_start = None
         date_end = None
         if dates[0] == 'До':
-            date_start = self._transform_date(int(dates[1]), dates[2])
+            date_start = self.__transform_date(int(dates[1]), dates[2])
         elif len(dates) == 4:
-            date_start = self._transform_date(int(dates[0]), dates[1])
-            date_end = self._transform_date(int(dates[2]), dates[3])
+            date_start = self.__transform_date(int(dates[0]), dates[1])
+            date_end = self.__transform_date(int(dates[2]), dates[3])
         else:
-            date_start = self._transform_date(int(dates[0]), dates[2])
-            date_end = self._transform_date(int(dates[1]), dates[2])
+            date_start = self.__transform_date(int(dates[0]), dates[2])
+            date_end = self.__transform_date(int(dates[1]), dates[2])
         return {'date_start': date_start,
                 'date_end': date_end}
 
     @staticmethod
-    def _transform_date(day, month):
+    def __transform_date(day, month):
         months_dict = dict(zip(['янв', 'фев', 'мар',
                                 'апр', 'май', 'июн',
                                 'июл', 'авг', 'сен',
