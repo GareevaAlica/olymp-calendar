@@ -5,7 +5,7 @@ class Olympiad(db.Model):
     # id олимпиады в базе данных
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     # название олимпиады
-    name = db.Column(db.String, unique=True, nullable=False)
+    name = db.Column(db.String)
     # ссылка олимпиады на https://olimpiada.ru
     url = db.Column(db.String)
     # события проведения олимпиады
