@@ -7,12 +7,12 @@ class Olympiad(db.Model):
     url = db.Column(db.String)
     events = db.relationship('Event', backref='olympiad', lazy='dynamic')
 
-    def __init__(self, name, link=None):
+    def __init__(self, name, url=None):
         self.name = name
-        self.link = link
+        self.url = url
 
     def __repr__(self):
-        return '<Olympiad: name = {}, link = {}>'.format(self.name, self.link)
+        return '<Olympiad: name = {}, url = {}>'.format(self.name, self.url)
 
     def save(self):
         db.session.add(self)
