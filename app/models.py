@@ -4,7 +4,7 @@ from app import db
 class Olympiad(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.String, unique=True, nullable=False)
-    link = db.Column(db.String)
+    url = db.Column(db.String)
     events = db.relationship('Event', backref='olympiad', lazy='dynamic')
 
     def __init__(self, name, link=None):
@@ -29,9 +29,9 @@ class Olympiad(db.Model):
         return name
 
     @staticmethod
-    def get_link(id):
-        link = Olympiad.query.filter_by(id=id).first().link
-        return link
+    def get_url(id):
+        url = Olympiad.query.filter_by(id=id).first().url
+        return url
 
     @staticmethod
     def get_events(id):

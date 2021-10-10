@@ -3,7 +3,7 @@
 
 {% for olympiad in olympiads_list  %}
     <br>
-    {{ olympiad.name }}, {{ olympiad.link }}:
+    {{ olympiad.name }}, {{ olympiad.url }}:
     {% for event in olympiad.events  %}
         <br>
         {{ event.name }}, {{ event.data_start }}, {{ event.data_end }}
