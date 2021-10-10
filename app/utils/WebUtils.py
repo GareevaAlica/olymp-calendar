@@ -30,3 +30,30 @@ class WebUtils():
         soup = BeautifulSoup(html, 'html.parser')
         events = soup.findAll('a', attrs={'href': re.compile(r"/activity/.*/events/*")})
         return events
+
+    @staticmethod
+    def getRelatedOlympiadsByUrl(url):
+        htmlDoc = WebUtils.getHtmlByUrl(url)
+
+        olympiad_tokens = WebUtils.__getOlympiadsTokensFromHtml(htmlDoc)
+        print(olympiad_tokens)
+        olympiad_tokens = olympiad_tokens[1:]
+        print(olympiad_tokens)
+
+        try:
+            olympiads = [(olympiad_token.contents[1].contents[0], olympiad_token['href']) for olympiad_token in olympiad_tokens]
+        except AttributeError as err:
+            print(f'Attribure Error: {err}')
+            raise RuntimeError('Unknown format of webpage')
+
+        nameToLink = dict(olympiads)
+
+        return nameToLink
+
+
+    @staticmethod
+    def __getOlympiadsTokensFromHtml(html):
+        soup = BeautifulSoup(html, 'html.parser')
+        olympiads = soup.findAll('a', attrs={'href': re.compile(r"/activity/\d*$")})
+        return olympiads
+
