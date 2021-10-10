@@ -51,9 +51,9 @@ class Event(db.Model):
     # название события
     name = db.Column(db.String, nullable=False)
     # дата начала проведения события
-    date_start = db.Column(db.String)
+    date_start = db.Column(db.Date)
     # дата конца проведения события
-    date_end = db.Column(db.String)
+    date_end = db.Column(db.Date)
 
     def __repr__(self):
         return '<Event: olympiad_id = {}, name = {},' \

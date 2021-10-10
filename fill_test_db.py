@@ -1,7 +1,7 @@
 from app.models import Olympiad, Event
 from app import db
 from app.utils.DatabaseUpdater import DatabaseUpdater
-
+from datetime import date
 
 # Файл заполнения базы данных для тестов
 
@@ -25,13 +25,13 @@ db.create_all()  # создать базу
 # пару тестовых данных
 create_olympiad(name="olympiad1", url="url1")
 create_event(olympiad_id=1, name='event1',
-             date_start='date_start1', date_end='date_end1')
+             date_start=date(2021, 1, 1), date_end=date(2021, 1, 1))
 create_event(olympiad_id=1, name='event2',
-             date_start='date_start2', date_end='date_end2')
+             date_start=date(2021, 2, 2), date_end=date(2021, 2, 2))
 
 create_olympiad(name="olympiad2", url="url1")
 create_event(olympiad_id=2, name='event3',
-             date_start='date_start3', date_end='date_end3')
+             date_start=date(2021, 3, 3), date_end=date(2021, 4, 4))
 
 # вызов заполнения базы данных реальной информацией
 db_updater = DatabaseUpdater()
