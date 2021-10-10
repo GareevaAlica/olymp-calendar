@@ -28,11 +28,6 @@ class Olympiad(db.Model):
         return Olympiad.query.all()
 
     @staticmethod
-    def get_id_by_url(url):
-        id = Olympiad.query.filter_by(url=url).first().id
-        return id
-
-    @staticmethod
     def get_name(id):
         name = Olympiad.query.filter_by(id=id).first().name
         return name

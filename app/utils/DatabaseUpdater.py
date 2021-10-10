@@ -74,14 +74,14 @@ class DatabaseUpdater():
         :return: None
         """
         for olympiad_info in olympiads_info_list:
-            self._create_olympiad(name=olympiad_info['olympiad_name'],
-                                  url=olympiad_info['olympiad_url'])
+            olympiad_id = \
+                self._create_olympiad(name=olympiad_info['olympiad_name'],
+                                      url=olympiad_info['olympiad_url'])
             for event in olympiad_info['events']:
-                self._create_event(olympiad_id=Olympiad.get_id_by_url(
-                    olympiad_info['olympiad_url']),
-                    name=event['event_name'],
-                    date_start=event['date_start'],
-                    date_end=event['date_end'])
+                self._create_event(olympiad_id=olympiad_id,
+                                   name=event['event_name'],
+                                   date_start=event['date_start'],
+                                   date_end=event['date_end'])
 
     @staticmethod
     def _create_olympiad(name, url=None):
@@ -89,11 +89,12 @@ class DatabaseUpdater():
         Сохранение олимпиады в базу данных
         :param name: название олимпиады
         :param url: url олимпиады
-        :return: None
+        :return: id сохраненной олимпиады
         """
         olympiad = Olympiad(name=name, url=url)
-        olympiad.save()
+        id = olympiad.save()
         print(olympiad)
+        return id
 
     @staticmethod
     def _create_event(olympiad_id, name, date_start=None, date_end=None):
@@ -104,9 +105,10 @@ class DatabaseUpdater():
         :param name: название события
         :param date_start: дата начала проведения события
         :param date_end: дата конца проведения события
-        :return: None
+        :return: id сохраненного события
         """
         event = Event(olympiad_id=olympiad_id, name=name,
                       date_start=date_start, date_end=date_end)
-        event.save()
+        id = event.save()
         print(event)
+        return id
