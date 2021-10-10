@@ -16,6 +16,8 @@ class WebUtils():
         htmlDoc = WebUtils.getHtmlByUrl(url)
 
         event_tokens = WebUtils.__getEventTokensFromHtml(htmlDoc)
+        if len(event_tokens) == 0:
+            return {}
         event_tokens.pop()
 
         events = [event_tokens[i].contents[0].contents[0]
@@ -68,7 +70,10 @@ class WebUtils():
                 (olympiad_token.contents[1].contents[0], olympiad_token['href'])
                 for olympiad_token in olympiad_tokens]
         except AttributeError as err:
-            print(f'Attribure Error: {err}')
+            # print(f'Attribure Error: {err}')
+            raise RuntimeError('Unknown format of webpage')
+        except IndexError as err:
+            # print(f'Index Error: {err}')
             raise RuntimeError('Unknown format of webpage')
 
         nameToLink = dict(olympiads)

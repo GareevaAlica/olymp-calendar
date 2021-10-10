@@ -6,44 +6,62 @@ import re
 
 # Класс заполнения базы данных информацией об олимпиадах
 class DatabaseUpdater():
-    # данный список будет браться с помощью других функций
-    # сейчас он заполнен вручную ради проверки корректности
-    all_olympiads_url_list = ['https://olimpiada.ru/activity/5023',
-                              'https://olimpiada.ru/activity/182',
-                              'https://olimpiada.ru/activity/5277',
-                              'https://olimpiada.ru/activity/251']
+    olympiad_map_url = 'https://olimpiada.ru/article/973'
 
     def __init__(self):
         # класс обработки web страниц
         self.webutils = WebUtils()
+
+    @staticmethod
+    def save_in_file(file_name, data):
+        with open('help/' + file_name + '.txt', "w") as file:
+            print(data, file=file)
 
     def update_database(self):
         """
         Обновление базы данных информацией об олимпиадах
         :return: None
         """
-        # получаем кончательные ссылки на олимпиады
+        # получаем ссылки на страницы олимпиад.
+        # среди них могут быть страницы,
+        # которые содержат в себе еще один список олимпиад
+        # и "окончательные" ссылки, которые имеют раписание
+        all_olympiads_url_dict = \
+            self.webutils.getMapNameLink(self.olympiad_map_url)
+        self.save_in_file('olympiads_map', all_olympiads_url_dict)
+        print('Got Olympiads Map:', len(all_olympiads_url_dict))
+        # получаем "окончательные" ссылки на олимпиады
         olympiads_url_dict = \
-            self.__get_olympiads_url_dict(self.all_olympiads_url_list)
+            self.__get_olympiads_url_dict(all_olympiads_url_dict)
+        self.save_in_file('olympiads_url', olympiads_url_dict)
+        print('Got Olympiads url dict', len(olympiads_url_dict))
         # получаем информацию об олимпиадах
         olympiads_info_list = \
             self.__get_olympiads_info_list(olympiads_url_dict)
+        self.save_in_file('olympiads_info_list', olympiads_info_list)
+        print('Got Olympiads Info List', len(olympiads_info_list))
         # сохраняем олимпиады и их события в базу данных
         self.__save_olympiads_info(olympiads_info_list)
+        print('DONE!')
 
-    def __get_olympiads_url_dict(self, all_olympiads_url_list):
+    def __get_olympiads_url_dict(self, all_olympiads_url_dict):
         olympiads_url_dict = dict()
-        for i, all_olympiads_url in enumerate(all_olympiads_url_list):
+        for i, (all_olympiad_name, all_olympiad_url) in \
+                enumerate(all_olympiads_url_dict.items()):
+            if all_olympiad_url is None:
+                olympiads_url_dict[all_olympiad_name] = None
+                continue
             try:
                 related_olympiads = \
-                    self.webutils.getRelatedOlympiadsByUrl(all_olympiads_url)
+                    self.webutils.getRelatedOlympiadsByUrl(all_olympiad_url)
             except RuntimeError:
-                olympiads_url_dict['Olympiad' + str(i)] = all_olympiads_url
+                olympiads_url_dict[all_olympiad_name] = all_olympiad_url
             else:
-                for olympiad_name, olympiads_url in related_olympiads.items():
+                for olympiad_name, olympiad_url in related_olympiads.items():
                     olympiads_url_dict[olympiad_name] = \
-                        'https://olimpiada.ru' + olympiads_url
-        print(olympiads_url_dict)
+                        'https://olimpiada.ru' + olympiad_url
+            print('[{} | {}] {}'.format(i + 1, len(all_olympiads_url_dict),
+                                        all_olympiad_name))
         return olympiads_url_dict
 
     def __get_olympiads_info_list(self, olympiads_url_dict):
@@ -60,7 +78,10 @@ class DatabaseUpdater():
         """
 
         olympiads_info_list = list()
-        for olympiad_name, olympiad_url in olympiads_url_dict.items():
+        for i, (olympiad_name, olympiad_url) \
+                in enumerate(olympiads_url_dict.items()):
+            if olympiad_url is None:
+                continue
             # получение информацию о расписании событий олимпиады по url
             events_dict = \
                 self.webutils.getEventsWithDeadlinesByUrl(olympiad_url)
@@ -74,7 +95,10 @@ class DatabaseUpdater():
             olympiads_info_list.append({'olympiad_name': olympiad_name,
                                         'olympiad_url': olympiad_url,
                                         'events': events_list})
-            print(olympiads_info_list[-1])
+            self.save_in_file('olympiads_info_list', olympiads_info_list)
+            print('[{} | {}] {}'.format(i + 1, len(olympiads_url_dict),
+                                        olympiads_info_list[-1][
+                                            'olympiad_name']))
         return olympiads_info_list
 
     def __save_olympiads_info(self, olympiads_info_list):
