@@ -24,6 +24,11 @@ class Olympiad(db.Model):
         return Olympiad.query.all()
 
     @staticmethod
+    def get_id_by_url(url):
+        id = Olympiad.query.filter_by(url=url).first().id
+        return id
+
+    @staticmethod
     def get_name(id):
         name = Olympiad.query.filter_by(id=id).first().name
         return name
@@ -43,21 +48,21 @@ class Event(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     olympiad_id = db.Column(db.Integer, db.ForeignKey('olympiad.id'))
     name = db.Column(db.String, nullable=False)
-    data_start = db.Column(db.String)
-    data_end = db.Column(db.String)
+    date_start = db.Column(db.String)
+    date_end = db.Column(db.String)
 
     def __repr__(self):
         return '<Event: olympiad_id = {}, name = {},' \
-               ' data_start = {}, data_end = {}>'.format(self.olympiad_id,
+               ' date_start = {}, date_end = {}>'.format(self.olympiad_id,
                                                          self.name,
-                                                         self.data_start,
-                                                         self.data_end)
+                                                         self.date_start,
+                                                         self.date_end)
 
-    def __init__(self, olympiad_id, name, data_start=None, data_end=None):
+    def __init__(self, olympiad_id, name, date_start=None, date_end=None):
         self.olympiad_id = olympiad_id
         self.name = name
-        self.data_start = data_start
-        self.data_end = data_end
+        self.date_start = date_start
+        self.date_end = date_end
 
     def save(self):
         db.session.add(self)
@@ -75,11 +80,11 @@ class Event(db.Model):
         return name
 
     @staticmethod
-    def get_data_start(id):
-        data_start = Event.query.filter_by(id=id).first().data_start
-        return data_start
+    def get_date_start(id):
+        date_start = Event.query.filter_by(id=id).first().date_start
+        return date_start
 
     @staticmethod
-    def get_data_end(id):
-        data_end = Event.query.filter_by(id=id).first().data_end
-        return data_end
+    def get_date_end(id):
+        date_end = Event.query.filter_by(id=id).first().date_end
+        return date_end
