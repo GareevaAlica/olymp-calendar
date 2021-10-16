@@ -1,7 +1,8 @@
 from app.utils.WebUtils import WebUtils
 from app.models import Olympiad, Event
-from datetime import date
+from datetime import datetime, date
 import re
+import json
 
 
 # Класс заполнения базы данных информацией об олимпиадах
@@ -14,8 +15,27 @@ class DatabaseUpdater():
 
     @staticmethod
     def save_in_file(file_name, data):
-        with open('help/' + file_name + '.txt', "w") as file:
-            print(data, file=file)
+        with open('test_db/' + file_name + '.json', 'w') as f:
+            json.dump(data, f, default=str)
+        # with open('test_db/' + file_name + '.txt', "w") as file:
+        #    print(data, file=file)
+
+    @staticmethod
+    def date_hook(json_dict):
+        for (key, value) in json_dict.items():
+            try:
+                json_dict[key] = datetime.strptime(value, "%Y-%m-%d").date()
+            except:
+                pass
+        return json_dict
+
+    def get_from_file(self, file_name):
+        f = open('test_db/' + file_name + '.json')
+        return json.load(f, object_hook=self.date_hook)
+
+    def save_olympiads_info_from_json(self):
+        olympiads_info_list = self.get_from_file('olympiads_info_list')
+        self.__save_olympiads_info(olympiads_info_list)
 
     def update_database(self):
         """
@@ -71,8 +91,8 @@ class DatabaseUpdater():
         :return: list({'olympiad_name': string,
                     'olympiad_url': string,
                     'events': list({'event_name': string,
-                                    'date_start': string,
-                                    'date_end': string
+                                    'date_start': date,
+                                    'date_end': date
                                     }, ...),
                     }, ...)
         """
@@ -108,8 +128,8 @@ class DatabaseUpdater():
         list({'olympiad_name': string,
             'olympiad_url': string,
             'events': list({'event_name': string,
-                            'date_start': string,
-                            'date_end': string
+                            'date_start': date,
+                            'date_end': date
                             }, ...),
             }, ...)
         :return: None

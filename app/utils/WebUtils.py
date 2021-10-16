@@ -18,7 +18,8 @@ class WebUtils():
         event_tokens = WebUtils.__getEventTokensFromHtml(htmlDoc)
         if len(event_tokens) == 0:
             return {}
-        event_tokens.pop()
+        if len(event_tokens) % 2:
+            event_tokens.pop()
 
         events = [event_tokens[i].contents[0].contents[0]
                   for i in range(0, len(event_tokens), 2)]
