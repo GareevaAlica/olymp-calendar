@@ -113,8 +113,6 @@ class DatabaseUpdater():
         olympiads_url_dict = dict()
         for i, (all_olympiad_name, all_olympiad_url) in \
                 enumerate(all_olympiads_url_dict.items()):
-            if i > 3:
-                continue
             if all_olympiad_url is None:
                 olympiads_url_dict[all_olympiad_name] = None
                 continue
