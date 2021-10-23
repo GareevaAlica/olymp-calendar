@@ -2,3 +2,6 @@ Flask==2.0.1
 Flask-WTF==0.15.1
 flask_sqlalchemy
 flask_migrate
+requests~=2.26.0
+beautifulsoup4~=4.10.0
+WTForms~=2.3.3
