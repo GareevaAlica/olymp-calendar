@@ -23,8 +23,7 @@ class DatabaseUpdater():
     olympiad_map_url = 'https://olimpiada.ru/article/973'
 
     def __init__(self):
-        # класс обработки web страниц
-        self.webutils = WebUtils()
+        pass
 
     @staticmethod
     def from_class_to_dict(olympiads_info_list):
@@ -88,7 +87,7 @@ class DatabaseUpdater():
         # которые содержат в себе еще один список олимпиад
         # и "окончательные" ссылки, которые имеют раписание
         all_olympiads_url_dict = \
-            self.webutils.getMapNameLink(self.olympiad_map_url)
+            WebUtils.getMapNameLink(self.olympiad_map_url)
         if save_test_db:
             self.save_in_file('olympiads_map', all_olympiads_url_dict)
         print('Got Olympiads Map:', len(all_olympiads_url_dict))
@@ -118,7 +117,7 @@ class DatabaseUpdater():
                 continue
             try:
                 related_olympiads = \
-                    self.webutils.getRelatedOlympiadsByUrl(all_olympiad_url)
+                    WebUtils.getRelatedOlympiadsByUrl(all_olympiad_url)
             except RuntimeError:
                 olympiads_url_dict[all_olympiad_name] = all_olympiad_url
             else:
@@ -143,7 +142,7 @@ class DatabaseUpdater():
                 continue
             # получение информацию о расписании событий олимпиады по url
             events_dict = \
-                self.webutils.getEventsWithDeadlinesByUrl(olympiad_url)
+                WebUtils.getEventsWithDeadlinesByUrl(olympiad_url)
             events_list = list()
             # обработка событий в расписании олимпиады
             for event_name, date in events_dict.items():

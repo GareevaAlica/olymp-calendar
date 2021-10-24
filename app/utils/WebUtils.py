@@ -3,20 +3,26 @@ from bs4 import BeautifulSoup
 import re
 
 
-class WebUtils():
+class WebUtils:
     @staticmethod
     def getHtmlByUrl(url):
         response = requests.get(url)
         return response.content
 
     @staticmethod
-    def getEventsWithDeadlinesByUrl(url):
-        eventToDeadline = dict()
+    def getOlympiadInfoByUrl(url):
+        html = WebUtils.getHtmlByUrl(url)
+        soup = BeautifulSoup(html, 'html.parser')
 
-        htmlDoc = WebUtils.getHtmlByUrl(url)
+        return OlympiadInfo(
+            WebUtils.getEventToDeadline(soup),
+            WebUtils.getClasses(soup),
+            WebUtils.getFields(soup))
 
-        event_tokens = WebUtils.__getEventTokensFromHtml(htmlDoc)
-        if len(event_tokens) == 0:
+    @staticmethod
+    def getEventToDeadline(soup):
+        event_tokens = WebUtils.__getEventTokens(soup)
+        if not event_tokens:
             return {}
         if len(event_tokens) % 2:
             event_tokens.pop()
@@ -26,19 +32,52 @@ class WebUtils():
         event_deadlines = [event_tokens[i].contents[0]
                            for i in range(1, len(event_tokens), 2)]
 
+        eventToDeadline = dict()
+
         for i in range(0, len(events)):
-            eventToDeadline[events[i]] = event_deadlines[i]
+            eventToDeadline[events[i]] = event_deadlines[i].replace('\xa0', ' ')
 
         return eventToDeadline
 
     @staticmethod
-    def __getEventTokensFromHtml(html):
-        soup = BeautifulSoup(html, 'html.parser')
+    def __getEventTokens(soup):
         events = soup.findAll(
             'a',
             attrs={'href': re.compile(r"/activity/.*/events/*")}
         )
         return events
+
+    @staticmethod
+    def getClasses(soup):
+        classesTokens = WebUtils.__getClassesTokens(soup)
+        if not classesTokens:
+            return ""
+        classes = classesTokens[0].text
+        return classes[:classes.find(' ')]
+
+    @staticmethod
+    def __getClassesTokens(soup):
+        classesTokens = soup.findAll(
+            'span',
+            attrs={'class': 'classes_types_a'}
+        )
+        return classesTokens
+
+    @staticmethod
+    def getFields(soup):
+        fieldsTokens = WebUtils.__getFieldsTokens(soup)
+        if not fieldsTokens:
+            return list()
+
+        return list(map(lambda token: token.text.replace('\xa0', ' ').strip(), fieldsTokens))
+
+    @staticmethod
+    def __getFieldsTokens(soup):
+        fieldsTokens = soup.findAll(
+            'span',
+            attrs={'class': 'subject_tag small-tag'}
+        )
+        return fieldsTokens
 
     @staticmethod
     def getMapNameLink(url: str) -> dict:
@@ -87,3 +126,14 @@ class WebUtils():
         olympiads = soup.findAll('a',
                                  attrs={'href': re.compile(r"/activity/\d*$")})
         return olympiads
+
+
+class OlympiadInfo:
+    eventToDeadline: dict
+    classes: str
+    fields: list
+
+    def __init__(self, eventToDeadline, classes, fields):
+        self.eventToDeadline = eventToDeadline
+        self.classes = classes
+        self.fields = fields
