@@ -1,3 +1,4 @@
+from typing import NamedTuple
 import requests
 from bs4 import BeautifulSoup
 import re
@@ -14,7 +15,7 @@ class WebUtils:
         html = WebUtils.getHtmlByUrl(url)
         soup = BeautifulSoup(html, 'html.parser')
 
-        return OlympiadInfo(
+        return OlympiadInfoTuple(
             WebUtils.getEventToDeadline(soup),
             WebUtils.getClasses(soup),
             WebUtils.getFields(soup))
@@ -69,7 +70,8 @@ class WebUtils:
         if not fieldsTokens:
             return list()
 
-        return list(map(lambda token: token.text.replace('\xa0', ' ').strip(), fieldsTokens))
+        return list(map(lambda token: token.text.replace('\xa0', ' ').strip(),
+                        fieldsTokens))
 
     @staticmethod
     def __getFieldsTokens(soup):
@@ -128,12 +130,7 @@ class WebUtils:
         return olympiads
 
 
-class OlympiadInfo:
+class OlympiadInfoTuple(NamedTuple):
     eventToDeadline: dict
     classes: str
     fields: list
-
-    def __init__(self, eventToDeadline, classes, fields):
-        self.eventToDeadline = eventToDeadline
-        self.classes = classes
-        self.fields = fields

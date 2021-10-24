@@ -21,3 +21,6 @@ SQLALCHEMY_TRACK_MODIFICATIONS = False
 host = 'localhost'
 port = 5000
 debug = True
+
+SERVICE_ACCOUNT_FILE = 'keys/olymp-calendar.json'
+CLIENT_SECRET = 'keys/client_secret.json'

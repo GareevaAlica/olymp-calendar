@@ -1,15 +1,17 @@
 from app.utils.WebUtils import WebUtils
+from app.utils.JSONHandler import JSONHandler
 from app.models import Olympiad, Event
-from datetime import datetime, date
+from datetime import date
 from typing import NamedTuple
 import re
-import json
 
 
 class OlympiadInfoTuple(NamedTuple):
     olympiad_name: str
     olympiad_url: str
     events: list
+    classes: str
+    fields: list
 
 
 class EventTuple(NamedTuple):
@@ -23,58 +25,12 @@ class DatabaseUpdater():
     olympiad_map_url = 'https://olimpiada.ru/article/973'
 
     def __init__(self):
-        pass
-
-    @staticmethod
-    def from_class_to_dict(olympiads_info_list):
-        olympiads_info_json = list()
-        for olympiads_info in olympiads_info_list:
-            events_list = list()
-            for event in olympiads_info.events:
-                events_list.append({'event_name': event.event_name,
-                                    'date_start': event.date_start,
-                                    'date_end': event.date_end})
-            olympiads_info_json.append(
-                {'olympiad_name': olympiads_info.olympiad_name,
-                 'olympiad_url': olympiads_info.olympiad_url,
-                 'events': events_list})
-        return olympiads_info_json
-
-    def save_in_file(self, file_name, data):
-        with open('test_db/' + file_name + '.json', 'w') as f:
-            json.dump(data, f, default=str)
-
-    @staticmethod
-    def date_hook(json_dict):
-        for (key, value) in json_dict.items():
-            try:
-                json_dict[key] = datetime.strptime(value, "%Y-%m-%d").date()
-            except:
-                pass
-        return json_dict
-
-    def get_from_file(self, file_name):
-        f = open('test_db/' + file_name + '.json')
-        return json.load(f, object_hook=self.date_hook)
-
-    @staticmethod
-    def from_dict_to_class(olympiads_info_json):
-        olympiads_info_list = list()
-        for olympiads_info in olympiads_info_json:
-            events_list = list()
-            for event in olympiads_info['events']:
-                events_list.append(EventTuple(event['event_name'],
-                                              event['date_start'],
-                                              event['date_end']))
-            olympiads_info_list.append(
-                OlympiadInfoTuple(olympiads_info['olympiad_name'],
-                                  olympiads_info['olympiad_url'],
-                                  events_list))
-        return olympiads_info_list
+        self.json_handler = JSONHandler()
 
     def save_olympiads_info_from_json(self):
         olympiads_info_list = \
-            self.from_dict_to_class(self.get_from_file('olympiads_info_list'))
+            self.json_handler.from_dict_to_class(
+                self.json_handler.get_from_file('olympiads_info_list'))
         self.__save_olympiads_info(olympiads_info_list)
 
     def update_database(self, save_test_db=False):
@@ -89,21 +45,26 @@ class DatabaseUpdater():
         all_olympiads_url_dict = \
             WebUtils.getMapNameLink(self.olympiad_map_url)
         if save_test_db:
-            self.save_in_file('olympiads_map', all_olympiads_url_dict)
+            self.json_handler.save_in_file('olympiads_map',
+                                           all_olympiads_url_dict)
         print('Got Olympiads Map:', len(all_olympiads_url_dict))
+
         # получаем "окончательные" ссылки на олимпиады
         olympiads_url_dict = \
             self.__get_olympiads_url_dict(all_olympiads_url_dict)
         if save_test_db:
-            self.save_in_file('olympiads_url', olympiads_url_dict)
+            self.json_handler.save_in_file('olympiads_url', olympiads_url_dict)
         print('Got Olympiads url dict', len(olympiads_url_dict))
+
         # получаем информацию об олимпиадах
         olympiads_info_list = \
             self.__get_olympiads_info_list(olympiads_url_dict)
         if save_test_db:
-            self.save_in_file('olympiads_info_list',
-                              self.from_class_to_dict(olympiads_info_list))
+            self.json_handler.save_in_file('olympiads_info_list',
+                                           self.json_handler.from_class_to_dict(
+                                               olympiads_info_list))
         print('Got Olympiads Info List', len(olympiads_info_list))
+
         # сохраняем олимпиады и их события в базу данных
         self.__save_olympiads_info(olympiads_info_list)
         print('DONE!')
@@ -140,9 +101,10 @@ class DatabaseUpdater():
                 in enumerate(olympiads_url_dict.items()):
             if olympiad_url is None:
                 continue
-            # получение информацию о расписании событий олимпиады по url
-            events_dict = \
-                WebUtils.getEventsWithDeadlinesByUrl(olympiad_url)
+            # получение информацию об олимпиаде по url
+            olympiad_info = WebUtils.getOlympiadInfoByUrl(olympiad_url)
+            # информация о расписании событий
+            events_dict = olympiad_info.eventToDeadline
             events_list = list()
             # обработка событий в расписании олимпиады
             for event_name, date in events_dict.items():
@@ -152,8 +114,9 @@ class DatabaseUpdater():
                                               date_start_end['date_end']))
             olympiads_info_list.append(OlympiadInfoTuple(olympiad_name,
                                                          olympiad_url,
-                                                         events_list))
-            self.save_in_file('olympiads_info_list', olympiads_info_list)
+                                                         events_list,
+                                                         olympiad_info.classes,
+                                                         olympiad_info.fields))
             print('[{} | {}] {}'.format(i + 1, len(olympiads_url_dict),
                                         olympiads_info_list[-1].olympiad_name))
         return olympiads_info_list
@@ -168,7 +131,8 @@ class DatabaseUpdater():
         for olympiad_info in olympiads_info_list:
             olympiad_id = \
                 self.__create_olympiad(name=olympiad_info.olympiad_name,
-                                       url=olympiad_info.olympiad_url)
+                                       url=olympiad_info.olympiad_url,
+                                       classes=olympiad_info.classes)
             for event in olympiad_info.events:
                 self.__create_event(olympiad_id=olympiad_id,
                                     name=event.event_name,
@@ -176,14 +140,14 @@ class DatabaseUpdater():
                                     date_end=event.date_end)
 
     @staticmethod
-    def __create_olympiad(name, url=None):
+    def __create_olympiad(name, url=None, classes=None):
         """
         Сохранение олимпиады в базу данных
         :param name: название олимпиады
         :param url: url олимпиады
         :return: id сохраненной олимпиады
         """
-        olympiad = Olympiad(name=name, url=url)
+        olympiad = Olympiad(name=name, url=url, classes=classes)
         id = olympiad.save()
         print(olympiad)
         return id
