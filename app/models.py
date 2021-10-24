@@ -1,5 +1,6 @@
 from app import db
-
+from app.utils.Google import GoogleCalendar
+import google.oauth2.credentials
 
 class Olympiad(db.Model):
     # id олимпиады в базе данных
@@ -8,15 +9,20 @@ class Olympiad(db.Model):
     name = db.Column(db.String)
     # ссылка олимпиады на https://olimpiada.ru
     url = db.Column(db.String)
+    # классы
+    classes = db.Column(db.String)
     # события проведения олимпиады
     events = db.relationship('Event', backref='olympiad', lazy='dynamic')
 
-    def __init__(self, name, url=None):
+    def __init__(self, name, url=None, classes=None):
         self.name = name
         self.url = url
+        self.classes = classes
 
     def __repr__(self):
-        return '<Olympiad: name = {}, url = {}>'.format(self.name, self.url)
+        return '<Olympiad: name = {},' \
+               ' url = {},' \
+               ' classes = {}>'.format(self.name, self.url, self.classes)
 
     def save(self):
         db.session.add(self)
@@ -26,21 +32,6 @@ class Olympiad(db.Model):
     @staticmethod
     def get_all():
         return Olympiad.query.all()
-
-    @staticmethod
-    def get_name(id):
-        name = Olympiad.query.filter_by(id=id).first().name
-        return name
-
-    @staticmethod
-    def get_url(id):
-        url = Olympiad.query.filter_by(id=id).first().url
-        return url
-
-    @staticmethod
-    def get_events(id):
-        events = Olympiad.query.filter_by(id=id).first().events
-        return events
 
 
 class Event(db.Model):
@@ -73,22 +64,51 @@ class Event(db.Model):
         db.session.commit()
         return self.id
 
-    @staticmethod
-    def get_olympiad_id(id):
-        olympiad_id = Event.query.filter_by(id=id).first().olympiad_id
-        return olympiad_id
+
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    client_id = db.Column(db.String, unique=True,)
+    calendar_id = db.Column(db.String, unique=True)
+
+    def __repr__(self):
+        return '<User: client_id = {}, calendar_id = {}'.format(self.client_id,
+                                                            self.calendar_id)
+
+    def __init__(self, client_id, calendar_id):
+        self.client_id = client_id
+        self.calendar_id = calendar_id
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+        return self.id
 
     @staticmethod
-    def get_name(id):
-        name = Event.query.filter_by(id=id).first().name
-        return name
+    def get_client_id(id):
+        client_id = User.query.filter_by(id=id).first().client_id
+        return client_id
 
     @staticmethod
-    def get_date_start(id):
-        date_start = Event.query.filter_by(id=id).first().date_start
-        return date_start
+    def get_calendar_id(id):
+        calendar_id = User.query.filter_by(id=id).first().calendar_id
+        return calendar_id
 
     @staticmethod
-    def get_date_end(id):
-        date_end = Event.query.filter_by(id=id).first().date_end
-        return date_end
+    def get_id(client_id):
+        id = User.query.filter_by(client_id=client_id).first().id
+        return id
+
+    @staticmethod
+    def client_id_exists(client_id):
+        if User.query.filter_by(client_id=client_id).first() is None:
+            return False
+        return True
+
+    @staticmethod
+    def try_add_user(client_id, credentials):
+        if not User.client_id_exists(client_id):
+            google_calendar = GoogleCalendar(credentials)
+            calendar_id = google_calendar.create_calendar()
+            user = User(client_id=client_id, calendar_id=calendar_id)
+            user.save()
+            print(user)

@@ -10,3 +10,4 @@ db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
 from . import views, models
+from .utils import Auth

@@ -1,14 +1,7 @@
 {% extends "base.html" %} {% block content %}
-Главная страница
-
-{% for olympiad in olympiads_list  %}
-    <br>
-    {{ olympiad.name }}, {{ olympiad.url }}:
-    {% for event in olympiad.events  %}
-        <br>
-        {{ event.name }}, {{ event.date_start }}, {{ event.date_end }}
-    {% endfor %}
-    <br>
-{% endfor %}
-
+<div class="mt-2 d-grid alert-secondary">
+    <a href="{{ url_for('authorize') }}" class="alert-link">
+        Войти в аккаунт.
+    </a>
+</div>
 {% endblock %}

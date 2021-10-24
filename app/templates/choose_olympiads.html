@@ -1,0 +1,25 @@
+{% extends "base.html" %} {% block content %}
+<legend class="border-bottom mb-4">Чтобы события отображались на виджете -
+    сделайте общедоступным календарь
+</legend>
+<iframe src="{{ src }}" style="border: 0" width="800" height="600"
+        frameborder="0" scrolling="no"></iframe>
+<div class="content-section">
+    <form method="POST" action="">
+        {{ form.hidden_tag() }}
+        <fieldset class="form-group">
+            <legend class="border-bottom mb-4">Выбор</legend>
+            <div class="form-group">
+                {{ form.submit(class="btn btn-outline-info") }}
+            </div>
+            {% for choice in form.choose_olympiads %}
+            <div class="form-check">
+                {{ choice(class="form-check-input", type="checkbox") }}
+                {{ choice.label }}
+            </div>
+            {% endfor %}
+        </fieldset>
+    </form>
+</div>
+
+{% endblock %}
