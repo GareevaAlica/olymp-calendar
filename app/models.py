@@ -1,8 +1,22 @@
 from app import db
 from app.utils.Google import GoogleCalendar
-import google.oauth2.credentials
+from sqlalchemy import delete
+
+olympiads_fields = \
+    db.Table('olympiads_fields', db.Model.metadata,
+             db.Column('olympiad_id', db.Integer, db.ForeignKey('olympiad.id')),
+             db.Column('field_id', db.Integer, db.ForeignKey('field.id'))
+             )
+
+users_olympiads = \
+    db.Table('users_olympiads', db.Model.metadata,
+             db.Column('user_id', db.Integer, db.ForeignKey('user.id')),
+             db.Column('olympiad_id', db.Integer, db.ForeignKey('olympiad.id'))
+             )
+
 
 class Olympiad(db.Model):
+    __tablename__ = 'olympiad'
     # id олимпиады в базе данных
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     # название олимпиады
@@ -13,6 +27,7 @@ class Olympiad(db.Model):
     classes = db.Column(db.String)
     # события проведения олимпиады
     events = db.relationship('Event', backref='olympiad', lazy='dynamic')
+    fields = db.relationship('Field', secondary=olympiads_fields)
 
     def __init__(self, name, url=None, classes=None):
         self.name = name
@@ -32,6 +47,23 @@ class Olympiad(db.Model):
     @staticmethod
     def get_all():
         return Olympiad.query.all()
+
+    @staticmethod
+    def get_by_id(id):
+        return Olympiad.query.filter_by(id=id).first()
+
+    @staticmethod
+    def save_field(olympiad_id, field_id):
+        olympiad = Olympiad.get_by_id(olympiad_id)
+        field = Field.get_by_id(field_id)
+        olympiad.fields.append(field)
+        olympiad.save()
+
+    @staticmethod
+    def save_field_list(olympiad_id, field_name_list):
+        for field_name in field_name_list:
+            field_id = Field.get_or_create(field_name)
+            Olympiad.save_field(olympiad_id, field_id)
 
 
 class Event(db.Model):
@@ -65,14 +97,45 @@ class Event(db.Model):
         return self.id
 
 
-class User(db.Model):
+class Field(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    client_id = db.Column(db.String, unique=True,)
-    calendar_id = db.Column(db.String, unique=True)
+    name = db.Column(db.String, nullable=False)
 
     def __repr__(self):
-        return '<User: client_id = {}, calendar_id = {}'.format(self.client_id,
-                                                            self.calendar_id)
+        return '<Field: name = {}>'.format(self.name)
+
+    def __init__(self, name):
+        self.name = name
+
+    @staticmethod
+    def get_by_id(id):
+        return Field.query.filter_by(id=id).first()
+
+    @staticmethod
+    def get_or_create(name):
+        search_field = Field.query.filter_by(name=name).first()
+        if search_field is None:
+            field = Field(name=name)
+            return field.save()
+        else:
+            return search_field.id
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+        return self.id
+
+
+class User(db.Model):
+    __tablename__ = 'user'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    client_id = db.Column(db.String, unique=True)
+    calendar_id = db.Column(db.String, unique=True)
+    olympiads = db.relationship('Olympiad', secondary=users_olympiads)
+
+    def __repr__(self):
+        return '<User: client_id = {}, calendar_id = {}>'.format(self.client_id,
+                                                                 self.calendar_id)
 
     def __init__(self, client_id, calendar_id):
         self.client_id = client_id
@@ -82,6 +145,10 @@ class User(db.Model):
         db.session.add(self)
         db.session.commit()
         return self.id
+
+    @staticmethod
+    def get_by_client_id(client_id):
+        return User.query.filter_by(client_id=client_id).first()
 
     @staticmethod
     def get_client_id(id):
@@ -107,8 +174,29 @@ class User(db.Model):
     @staticmethod
     def try_add_user(client_id, credentials):
         if not User.client_id_exists(client_id):
-            google_calendar = GoogleCalendar(credentials)
+            google_calendar = GoogleCalendar(None, credentials)
             calendar_id = google_calendar.create_calendar()
             user = User(client_id=client_id, calendar_id=calendar_id)
             user.save()
             print(user)
+
+    @staticmethod
+    def save_olympiad(client_id, olympiad_id):
+        olympiad = Olympiad.get_by_id(olympiad_id)
+        user = User.get_by_client_id(client_id)
+        user.olympiads.append(olympiad)
+        user.save()
+
+    @staticmethod
+    def save_olympiad_list(client_id, olympiad_id_list):
+        User.delete_olympiads(client_id)
+        for olympiad_id in olympiad_id_list:
+            User.save_olympiad(client_id, int(olympiad_id) + 1)
+
+    @staticmethod
+    def delete_olympiads(client_id):
+        user_id = User.get_id(client_id)
+        deleted_users_olympiads = \
+            delete(users_olympiads).where(users_olympiads.c.user_id == user_id)
+        db.session.execute(deleted_users_olympiads)
+        db.session.commit()

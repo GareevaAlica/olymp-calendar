@@ -138,6 +138,7 @@ class DatabaseUpdater():
                                     name=event.event_name,
                                     date_start=event.date_start,
                                     date_end=event.date_end)
+            Olympiad.save_field_list(olympiad_id, olympiad_info.fields)
 
     @staticmethod
     def __create_olympiad(name, url=None, classes=None):
