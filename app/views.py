@@ -59,8 +59,8 @@ def choose_olympiads():
     form = MultiCheckboxForm()
     # список всех олимпиад
     olympiads_list = Olympiad.get_all()
-    calendar_id = \
-        User.get_calendar_id(User.get_id(session['credentials']['client_id']))
+    client_id = session['credentials']['client_id']
+    calendar_id = User.get_calendar_id(User.get_id(client_id))
 
     olympiads_name_list = [olympiad.name for olympiad in olympiads_list]
     ids = list(map(str, range(len(olympiads_list))))
@@ -73,6 +73,8 @@ def choose_olympiads():
             google.oauth2.credentials.Credentials(**session['credentials'])
         google_calendar = GoogleCalendar(calendar_id, credentials)
         google_calendar.create_olympiad_events(olympiads_info_list)
+
+        User.save_olympiad_list(client_id, indexes)
         return redirect('/choose_olympiads')
     return render_template("choose_olympiads.html",
                            form=form,
