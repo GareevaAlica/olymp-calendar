@@ -35,12 +35,12 @@ class GoogleCalendar():
     def olympiad_to_calendar_event(self, olympiad, olympiad_event):
         event = {
             'summary':
-                f'{olympiad_event.event_name} :'
-                f' {olympiad.olympiad_name[:50] + "..."}',
+                f'{olympiad_event.name} :'
+                f' {olympiad.name[:50] + "..."}',
             'description':
-                f'{olympiad_event.event_name} '
+                f'{olympiad_event.name} '
                 f'<br>'
-                f'<a href="{olympiad.olympiad_url}">{olympiad.olympiad_name}</a>',
+                f'<a href="{olympiad.url}">{olympiad.name}</a>',
             'start':
                 {'dateTime': to_iso_extended(olympiad_event.date_start),
                  'timeZone': 'GMT+00:00'},
@@ -67,9 +67,8 @@ class GoogleCalendar():
     def delete_selected_olympiads(self, olympiads):
         events_summaries_to_delete = []
         for olympiad in olympiads:
-            if olympiad.olympiad_name in olympiads_names_to_delete:
-                for event in olympiad.events:
-                    events_summaries_to_delete.append(self.olympiad_to_calendar_event(olympiad, event)['summary'])
+            for event in olympiad.events:
+                events_summaries_to_delete.append(self.olympiad_to_calendar_event(olympiad, event)['summary'])
         page_token = None
         while True:
             events_result = self.service.events().list(calendarId=self.calendar_id,
