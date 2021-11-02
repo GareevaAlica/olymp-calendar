@@ -63,6 +63,38 @@ class GoogleCalendar():
                 self.create_event(
                     self.olympiad_to_calendar_event(olympiad, olympiad_event))
 
+
+    def delete_selected_olympiads(self, olympiads):
+        events_summaries_to_delete = []
+        for olympiad in olympiads:
+            if olympiad.olympiad_name in olympiads_names_to_delete:
+                for event in olympiad.events:
+                    events_summaries_to_delete.append(self.olympiad_to_calendar_event(olympiad, event)['summary'])
+        page_token = None
+        while True:
+            events_result = self.service.events().list(calendarId=self.calendar_id,
+                                                       singleEvents=True,
+                                                       orderBy='startTime',
+                                                       pageToken=page_token).execute()
+            events = events_result.get('items', [])
+            for event in events:
+                if event['summary'] in events_summaries_to_delete:
+                    self.service.events().delete(calendarId=self.calendar_id,
+                                                 eventId=event['id']).execute()
+            page_token = events_result.get('nextPageToken', [])
+            if page_token == []:
+                break
+
+
+    def update_olympiad_events(self, old_olympiads, new_olympiads):
+        set_old_olympiads = set(old_olympiads)
+        set_new_olympiads = set(new_olympiads)
+        olympiads_to_delete = set_old_olympiads - set_new_olympiads
+        olympiads_to_create = set_new_olympiads - set_old_olympiads
+        self.delete_selected_olympiads(olympiads_to_delete)
+        self.create_olympiad_events(olympiads_to_create, delete_all=False, delete_outdated=True)
+
+
     def delete_legacy_events(self):
         datetime_now = datetime.datetime.utcnow()
         now = datetime_now.isoformat() + 'Z'
