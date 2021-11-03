@@ -129,16 +129,16 @@ class Field(db.Model):
 class User(db.Model):
     __tablename__ = 'user'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    client_id = db.Column(db.String, unique=True)
+    user_email = db.Column(db.String, unique=True)
     calendar_id = db.Column(db.String, unique=True)
     olympiads = db.relationship('Olympiad', secondary=users_olympiads)
 
     def __repr__(self):
-        return '<User: client_id = {}, calendar_id = {}>'.format(self.client_id,
+        return '<User: user_email = {}, calendar_id = {}>'.format(self.user_email,
                                                                  self.calendar_id)
 
-    def __init__(self, client_id, calendar_id):
-        self.client_id = client_id
+    def __init__(self, user_email, calendar_id):
+        self.user_email = user_email
         self.calendar_id = calendar_id
 
     def save(self):
@@ -147,13 +147,13 @@ class User(db.Model):
         return self.id
 
     @staticmethod
-    def get_by_client_id(client_id):
-        return User.query.filter_by(client_id=client_id).first()
+    def get_by_user_email(user_email):
+        return User.query.filter_by(user_email=user_email).first()
 
     @staticmethod
-    def get_client_id(id):
-        client_id = User.query.filter_by(id=id).first().client_id
-        return client_id
+    def get_user_email(id):
+        user_email = User.query.filter_by(id=id).first().user_email
+        return user_email
 
     @staticmethod
     def get_calendar_id(id):
@@ -161,41 +161,41 @@ class User(db.Model):
         return calendar_id
 
     @staticmethod
-    def get_id(client_id):
-        id = User.query.filter_by(client_id=client_id).first().id
+    def get_id(user_email):
+        id = User.query.filter_by(user_email=user_email).first().id
         return id
 
     @staticmethod
-    def client_id_exists(client_id):
-        if User.query.filter_by(client_id=client_id).first() is None:
+    def user_email_exists(user_email):
+        if User.query.filter_by(user_email=user_email).first() is None:
             return False
         return True
 
     @staticmethod
-    def try_add_user(client_id, credentials):
-        if not User.client_id_exists(client_id):
+    def try_add_user(user_email, credentials):
+        if not User.user_email_exists(user_email):
             google_calendar = GoogleCalendar(None, credentials)
             calendar_id = google_calendar.create_calendar()
-            user = User(client_id=client_id, calendar_id=calendar_id)
+            user = User(user_email=user_email, calendar_id=calendar_id)
             user.save()
             print(user)
 
     @staticmethod
-    def save_olympiad(client_id, olympiad_id):
+    def save_olympiad(user_email, olympiad_id):
         olympiad = Olympiad.get_by_id(olympiad_id)
-        user = User.get_by_client_id(client_id)
+        user = User.get_by_user_email(user_email)
         user.olympiads.append(olympiad)
         user.save()
 
     @staticmethod
-    def save_olympiad_list(client_id, olympiad_id_list):
-        User.delete_olympiads(client_id)
+    def save_olympiad_list(user_email, olympiad_id_list):
+        User.delete_olympiads(user_email)
         for olympiad_id in olympiad_id_list:
-            User.save_olympiad(client_id, int(olympiad_id) + 1)
+            User.save_olympiad(user_email, int(olympiad_id) + 1)
 
     @staticmethod
-    def delete_olympiads(client_id):
-        user_id = User.get_id(client_id)
+    def delete_olympiads(user_email):
+        user_id = User.get_id(user_email)
         deleted_users_olympiads = \
             delete(users_olympiads).where(users_olympiads.c.user_id == user_id)
         db.session.execute(deleted_users_olympiads)

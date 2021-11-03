@@ -13,7 +13,7 @@ pip install -r requirements.txt
 
 3. Настройка датабазы:
 ```
-export FLASK_APP=main.py
+export FLASK_APP=main.py (или set FLASK_APP=main.py , если не выходит первое)
 flask db init
 flask db migrate
 flask db upgrade

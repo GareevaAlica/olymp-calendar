@@ -19,8 +19,8 @@ def create_event(olympiad_id, name, date_start=None, date_end=None):
     print(event)
 
 
-def create_user(client_id, calendar_id):
-    user = User(client_id=client_id, calendar_id=calendar_id)
+def create_user(user_email, calendar_id):
+    user = User(user_email=user_email, calendar_id=calendar_id)
     user.save()
     print(user)
 
@@ -35,11 +35,11 @@ db_updater = DatabaseUpdater()
 # получение уже собранной информации из /test_db/olympiads_info_list.json
 db_updater.save_olympiads_info_from_json()
 
-client_id = '529021305325-8vvgsbl0j5sh6r9gqdg3bvaflabc2cge.apps.googleusercontent.com'
-create_user(client_id,
+user_email = 'alica.gareeva@gmail.com'
+create_user(user_email,
             'u54rqm90ph7enrmdu7tk2ol4l8@group.calendar.google.com')
 
-User.save_olympiad_list(client_id, [i for i in range(30)])
+User.save_olympiad_list(user_email, [i for i in range(30)])
 
 db.session.commit()  # обновляем базу
 print('Success')
