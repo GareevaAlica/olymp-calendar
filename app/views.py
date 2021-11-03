@@ -3,41 +3,14 @@ from flask import render_template, redirect, session
 from app.models import Olympiad, User
 from app.forms import MultiCheckboxForm
 from app.utils.Google import GoogleCalendar
-from datetime import date
-from typing import NamedTuple
 import google.oauth2.credentials
 
 
-class OlympiadInfoTuple(NamedTuple):
-    olympiad_name: str
-    olympiad_url: str
-    events: list
-    classes: str
-    fields: list
-
-
-class EventTuple(NamedTuple):
-    event_name: str
-    date_start: date
-    date_end: date
-
-
-def get_olympiads_info_list(olympiads_list, indexes):
-    olympiads_info_list = list()
-    for id in indexes:
-        olympiad = olympiads_list[int(id)]
-        events_list = list()
-        for event in olympiad.events:
-            events_list.append(EventTuple(event.name,
-                                          event.date_start,
-                                          event.date_end))
-        olympiads_info_list.append(
-            OlympiadInfoTuple(olympiad.name,
-                              olympiad.url,
-                              events_list,
-                              olympiad.classes,
-                              list()))
-    return olympiads_info_list
+def indexes_list(olympiads_list):
+    indexes = list()
+    for olympiad in olympiads_list:
+        indexes.append(str(olympiad.id))
+    return indexes
 
 
 def get_src(calendar_id):
@@ -57,28 +30,32 @@ def choose_olympiads():
     if 'credentials' not in session:
         return redirect('main')
     form = MultiCheckboxForm()
-    # список всех олимпиад
-    olympiads_list = Olympiad.get_all()
-    client_id = session['credentials']['client_id']
-    calendar_id = User.get_calendar_id(User.get_id(client_id))
+    user_email = session['user_email']
+    calendar_id = User.get_calendar_id(User.get_id(user_email))
 
-    olympiads_name_list = [olympiad.name for olympiad in olympiads_list]
-    ids = list(map(str, range(len(olympiads_list))))
+    all_olympiads_list = Olympiad.get_all()
+    olympiads_name_list = [olympiad.name for olympiad in all_olympiads_list]
+    ids = list(map(str, range(1, len(all_olympiads_list) + 1)))
     form.choose_olympiads.choices = list(zip(ids, olympiads_name_list))
 
+    old_olympiads_ids = User.get_olympiads_id_by_user_email(user_email)
     if form.validate_on_submit():
-        indexes = form.choose_olympiads.data
-        olympiads_info_list = get_olympiads_info_list(olympiads_list, indexes)
+        new_olympiads_ids = list(map(int, form.choose_olympiads.data))
         credentials = \
             google.oauth2.credentials.Credentials(**session['credentials'])
-        google_calendar = GoogleCalendar(calendar_id, credentials)
-        google_calendar.create_olympiad_events(olympiads_info_list)
-
-        User.save_olympiad_list(client_id, indexes)
+        try:
+            google_calendar = GoogleCalendar(calendar_id, credentials)
+            google_calendar.update_olympiad_events(all_olympiads_list,
+                                                   old_olympiads_ids,
+                                                   new_olympiads_ids)
+        except:
+            return redirect('main')
+        User.save_olympiad_list(user_email, new_olympiads_ids)
         return redirect('/choose_olympiads')
+    form.choose_olympiads.data = list(map(str, old_olympiads_ids))
     return render_template("choose_olympiads.html",
                            form=form,
-                           olympiads_list=olympiads_list,
+                           olympiads_list=all_olympiads_list,
                            src=get_src(calendar_id),
                            title='Выбор олимпиад')
 

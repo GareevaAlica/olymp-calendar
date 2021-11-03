@@ -1,17 +1,21 @@
 import google_auth_oauthlib.flow
 from flask import session, redirect, url_for, request
+import requests
 
 import app
 from app.models import User
 from config import CLIENT_SECRET
 
-SCOPES = ['https://www.googleapis.com/auth/calendar']
+SCOPES = ['https://www.googleapis.com/auth/calendar',
+          'https://www.googleapis.com/auth/userinfo.email']
 
 
 @app.views.app.route('/oauth_authorize')
 def authorize():
     if 'credentials' in session:
         del session['credentials']
+    if 'user_email' in session:
+        del session['user_email']
     flow = \
         google_auth_oauthlib.flow.Flow.from_client_secrets_file(CLIENT_SECRET,
                                                                 scopes=SCOPES)
@@ -47,8 +51,12 @@ def oauth_callback():
 
     # Use the authorization server's response to fetch the OAuth 2.0 tokens.
     authorization_response = request.url
-    flow.fetch_token(authorization_response=authorization_response)
-
+    if 'calendar' not in authorization_response:
+        return redirect('main')
+    try:
+        flow.fetch_token(authorization_response=authorization_response)
+    except:
+        return redirect('main')
     # Store credentials in the session.
     # ACTION ITEM: In a production app, you likely want to save these
     #              credentials in a persistent database instead.
@@ -61,5 +69,17 @@ def oauth_callback():
         client_secret=credentials.client_secret,
         scopes=credentials.scopes
     )
-    User.try_add_user(credentials.client_id, credentials)
+    user_email = get_user_email(credentials.token)
+    session['user_email'] = user_email
+    try:
+        User.try_add_user(user_email, credentials)
+    except:
+        return redirect('main')
     return redirect(url_for('choose_olympiads'))
+
+
+def get_user_email(access_token):
+    r = requests.get(
+        'https://www.googleapis.com/oauth2/v3/userinfo',
+        params={'access_token': access_token})
+    return r.json()['email']
