@@ -134,8 +134,9 @@ class User(db.Model):
     olympiads = db.relationship('Olympiad', secondary=users_olympiads)
 
     def __repr__(self):
-        return '<User: user_email = {}, calendar_id = {}>'.format(self.user_email,
-                                                                 self.calendar_id)
+        return '<User: user_email = {}, calendar_id = {}>'.format(
+            self.user_email,
+            self.calendar_id)
 
     def __init__(self, user_email, calendar_id):
         self.user_email = user_email
@@ -166,6 +167,19 @@ class User(db.Model):
         return id
 
     @staticmethod
+    def get_olympiads_by_user_email(user_email):
+        return User.query.filter_by(user_email=user_email).first().olympiads
+
+    @staticmethod
+    def get_olympiads_id_by_user_email(user_email):
+        olympiads = \
+            User.query.filter_by(user_email=user_email).first().olympiads
+        olympiads_id = list()
+        for olympiad in olympiads:
+            olympiads_id.append(olympiad.id)
+        return olympiads_id
+
+    @staticmethod
     def user_email_exists(user_email):
         if User.query.filter_by(user_email=user_email).first() is None:
             return False
@@ -191,7 +205,7 @@ class User(db.Model):
     def save_olympiad_list(user_email, olympiad_id_list):
         User.delete_olympiads(user_email)
         for olympiad_id in olympiad_id_list:
-            User.save_olympiad(user_email, int(olympiad_id) + 1)
+            User.save_olympiad(user_email, int(olympiad_id))
 
     @staticmethod
     def delete_olympiads(user_email):

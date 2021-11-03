@@ -2,8 +2,8 @@ import googleapiclient
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 import datetime
-import pytz
 from config import SERVICE_ACCOUNT_FILE
+from app.utils.get_olympiads_info_list import get_olympiads_info_list
 
 SCOPES = ['https://www.googleapis.com/auth/calendar']
 
@@ -20,8 +20,9 @@ def from_iso_extended(str):
 class GoogleCalendar():
     def __init__(self, calendar_id, credentials=None):
         if credentials is None:
-            credentials = service_account.Credentials.from_service_account_file(
-                SERVICE_ACCOUNT_FILE, scopes=SCOPES)
+            credentials = \
+                service_account.Credentials.from_service_account_file(
+                    SERVICE_ACCOUNT_FILE, scopes=SCOPES)
         self.service = googleapiclient.discovery.build('calendar', 'v3',
                                                        credentials=credentials)
         self.calendar_id = calendar_id
@@ -30,7 +31,7 @@ class GoogleCalendar():
         e = self.service.events().insert(calendarId=self.calendar_id,
                                          body=event).execute()
 
-        print('Event created: %s' % (e.get('id')))
+        print('Event created: %s' % (e.get('summary')))
 
     def olympiad_to_calendar_event(self, olympiad, olympiad_event):
         event = {
@@ -52,47 +53,60 @@ class GoogleCalendar():
         }
         return event
 
-    def create_olympiad_events(self, olympiads: list, delete_all=True,
-                               delete_outdated=False):
+    def create_olympiad_events(self, olympiads, delete_all=True):
         if delete_all:
             self.delete_all_events()
-        if delete_outdated:
-            self.delete_legacy_events()
         for olympiad in olympiads:
             for olympiad_event in olympiad.events:
                 self.create_event(
                     self.olympiad_to_calendar_event(olympiad, olympiad_event))
 
-    def delete_legacy_events(self):
-        datetime_now = datetime.datetime.utcnow()
-        now = datetime_now.isoformat() + 'Z'
-        finished = False
-        while not finished:
-            print('Deleting the upcoming 10 events')
-            events_result = self.service.events().list(calendarId=self.calendar_id,
-                                                       timeMax=now,
-                                                       maxResults=10,
-                                                       singleEvents=True,
-                                                       orderBy='startTime').execute()
+    def delete_selected_olympiads(self, olympiads):
+        olympiads_names_to_delete = set()
+        for olympiad in olympiads:
+            olympiads_names_to_delete.add(olympiad.olympiad_name)
+        page_token = None
+        while True:
+            events_result = self.service.events().list(
+                calendarId=self.calendar_id,
+                singleEvents=True,
+                orderBy='startTime',
+                pageToken=page_token).execute()
             events = events_result.get('items', [])
-            if not len(events):
-                break
             for event in events:
-                if from_iso_extended(event['end']['dateTime']).replace(
-                        tzinfo=pytz.UTC) < datetime_now.replace(
-                    tzinfo=pytz.UTC):
+                olympiads_name = event['description'].split("\">")[1][:-4]
+                if olympiads_name in olympiads_names_to_delete:
                     self.service.events().delete(calendarId=self.calendar_id,
                                                  eventId=event['id']).execute()
-                else:
-                    finished = True
+                    print('Event deleted: %s' % (event['summary']))
+            page_token = events_result.get('nextPageToken', [])
+            if page_token == []:
+                break
+
+    def update_olympiad_events(self, all_olympiads_list,
+                               old_olympiads_ids, new_olympiads_ids):
+        set_old_olympiads_ids = set(old_olympiads_ids)
+        set_new_olympiads_ids = set(new_olympiads_ids)
+        olympiads_to_delete_ids = set_old_olympiads_ids - set_new_olympiads_ids
+        olympiads_to_create_ids = set_new_olympiads_ids - set_old_olympiads_ids
+        print('Delete:', olympiads_to_delete_ids)
+        print('Create:', olympiads_to_create_ids)
+
+        olympiads_to_delete = \
+            get_olympiads_info_list(all_olympiads_list, olympiads_to_delete_ids)
+        olympiads_to_create = \
+            get_olympiads_info_list(all_olympiads_list, olympiads_to_create_ids)
+        self.delete_selected_olympiads(olympiads_to_delete)
+        self.create_olympiad_events(olympiads_to_create, delete_all=False)
 
     def delete_all_events(self):
         pageToken = None
         while True:
-            events_result = self.service.events().list(calendarId=self.calendar_id,
-                                                       singleEvents=True,
-                                                       orderBy='startTime',
-                                                       pageToken=pageToken).execute()
+            events_result = self.service.events().list(
+                calendarId=self.calendar_id,
+                singleEvents=True,
+                orderBy='startTime',
+                pageToken=pageToken).execute()
             events = events_result.get('items', [])
             for event in events:
                 self.service.events().delete(calendarId=self.calendar_id,
