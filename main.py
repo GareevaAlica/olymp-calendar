@@ -1,4 +1,4 @@
-from app import app
+from app import app, db
 from config import host, port, debug
 import os
 

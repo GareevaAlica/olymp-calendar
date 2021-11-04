@@ -1,6 +1,9 @@
+from typing import List
+
 from app import db
 from app.utils.Google import GoogleCalendar
-from sqlalchemy import delete
+from sqlalchemy import delete, func, cast
+from sqlalchemy_utils import IntRangeType
 
 olympiads_fields = \
     db.Table('olympiads_fields', db.Model.metadata,
@@ -126,6 +129,21 @@ class Field(db.Model):
         return self.id
 
 
+class SearchParams:
+    olympiad_name_substr: str
+    fields: List[str]
+    min_class: int
+    max_class: int
+    user_id: id
+
+    def __init__(self, olympiad_name_substr, fields, min_class, max_class, user_id):
+        self.olympiad_name_substr = olympiad_name_substr
+        self.fields = fields
+        self.min_class = min_class
+        self.max_class = max_class
+        self.user_id = user_id
+
+
 class User(db.Model):
     __tablename__ = 'user'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -146,6 +164,18 @@ class User(db.Model):
         db.session.add(self)
         db.session.commit()
         return self.id
+
+    @staticmethod
+    def search_olympiads(search_params: SearchParams):
+        user = User.get_by_client_id(search_params.user_id)
+        return (Olympiad if user is None else user.olympiads) \
+            .query \
+            .join(Olympiad.fields) \
+            .filter(Field.name.in_(search_params.fields)) \
+            .filter(func.lower(Olympiad.name).contains(search_params.olympiad_name_substr.lower(), autoescape=True)) \
+            .filter(~(cast(Olympiad.classes, IntRangeType) < search_params.min_class)) \
+            .filter(~(cast(Olympiad.classes, IntRangeType) > search_params.max_class)) \
+            .all()
 
     @staticmethod
     def get_by_user_email(user_email):

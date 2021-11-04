@@ -1,8 +1,6 @@
 from app.models import Olympiad, Event, User
 from app import db
 from app.utils.DatabaseUpdater import DatabaseUpdater
-from datetime import date
-
 
 # Файл заполнения базы данных для тестов
 
