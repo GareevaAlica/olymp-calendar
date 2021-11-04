@@ -5,7 +5,6 @@ from datetime import date
 from typing import NamedTuple
 import re
 
-
 class OlympiadInfoTuple(NamedTuple):
     olympiad_name: str
     olympiad_url: str
