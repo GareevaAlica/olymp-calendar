@@ -6,7 +6,8 @@ class OlympiadInfoTuple(NamedTuple):
     olympiad_name: str
     olympiad_url: str
     events: list
-    classes: str
+    min_class: int
+    max_class: int
     fields: list
 
 
@@ -31,6 +32,7 @@ def get_olympiads_info_list(olympiads_list, indexes=None):
             OlympiadInfoTuple(olympiad.name,
                               olympiad.url,
                               events_list,
-                              olympiad.classes,
+                              olympiad.min_class,
+                              olympiad.max_class,
                               olympiad.fields))
     return olympiads_info_list

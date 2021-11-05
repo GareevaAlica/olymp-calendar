@@ -7,7 +7,8 @@ class OlympiadInfoTuple(NamedTuple):
     olympiad_name: str
     olympiad_url: str
     events: list
-    classes: str
+    min_class: int
+    max_class: int
     fields: list
 
 
@@ -31,7 +32,8 @@ class JSONHandler():
                 {'olympiad_name': olympiads_info.olympiad_name,
                  'olympiad_url': olympiads_info.olympiad_url,
                  'events': events_list,
-                 'classes': olympiads_info.classes,
+                 'min_class': olympiads_info.min_class,
+                 'max_class': olympiads_info.max_class,
                  'fields': olympiads_info.fields})
         return olympiads_info_json
 
@@ -66,6 +68,7 @@ class JSONHandler():
                 OlympiadInfoTuple(olympiads_info['olympiad_name'],
                                   olympiads_info['olympiad_url'],
                                   events_list,
-                                  olympiads_info['classes'],
+                                  olympiads_info['min_class'],
+                                  olympiads_info['max_class'],
                                   olympiads_info['fields']))
         return olympiads_info_list
