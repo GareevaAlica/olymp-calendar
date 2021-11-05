@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <!-- Обязательные метатеги -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <style> 
+    table { 
+      width: 100%; 
+    } 
+    table td { 
+      word-break: break-all; 
+    } 
+    </style>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
+ 
+    <script src="https://code.jquery.com/jquery-3.6.0.slim.min.js"></script>
+    <title>Олимпдейт</title> 
+  </head>
+  <body>
+        <header>
+          <div class="px-3 py-2 bg-dark text-white">
+            <div class="container">
+              <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+                <div class="col-lg-8">
+                  <a width=241.6 height=60.4 href="main.html" class="d-flex align-items-center my-2 my-lg-0 me-lg-auto text-white text-decoration-none">
+                    <h1 class="display-5 fw-bold text-warning" style="font-family: 'Lyrica Deco'">Олимпдейт</h1>
+                  </a>
+                </div>
+
+                <ul class="nav col-lg-4 col-lg-auto my-2 justify-content-center my-md-0 text-small">
+                  <li>
+                    <a href="main.html" class="nav-link text-secondary">
+                      <svg class="bi d-block mx-auto mb-1" width="24" height="24"><use xlink:href="main.html"/></svg>
+                      <p class="text-warning">Главная</p>
+                    </a>
+                  </li>
+                  <li>
+                    <a href="search.html" class="nav-link text-white">
+                      <svg class="bi d-block mx-auto mb-1" width="24" height="24"><use xlink:href="search.html"/></svg>
+                      <p class="text-warning">Поиск</p>
+                    </a>
+                  </li>
+                  <!-- Эту кнопку убирать, если пользователь НЕ залогинен-->
+                  <li>
+                    <a href="myolymps.html" class="nav-link text-white">
+                      <svg class="bi d-block mx-auto mb-1" width="24" height="24"><use xlink:href="myolymps.html"/></svg>
+                      <p class="text-warning">Мой список</p>
+                    </a>
+                  </li>
+                  <li>
+                    <a href="about.html" class="nav-link text-white">
+                      <svg class="bi d-block mx-auto mb-1" width="24" height="24"><use xlink:href="about.html"/></svg>
+                      <p class="text-warning">О проекте</p>
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="px-3 py-2 border-bottom mb-3">
+            <div class="container d-flex flex-wrap justify-content-center">
+              <form class="col-12 col-lg-auto mb-2 mb-lg-0 me-lg-auto">
+              </form>
+
+              <div class="text-end">
+                <!-- Эту кнопку убирать, если пользователь залогинен-->
+                <button type="button" class="btn btn-warning">Login</button>
+                <!-- Эту кнопку убирать, если пользователь НЕ залогинен-->
+                <button type="button" class="btn btn-light text-dark me-2">Exit</button>
+              </div>
+            </div>
+          </div>
+        </header>
+        <style>
+          .scroll {
+              color: #fff;
+              margin-top: 100px
+          }
+
+          #toTopBtn {
+              position: fixed;
+              bottom: 26px;
+              right: 39px;
+              z-index: 98;
+              padding: 21px;
+          }
+
+          .js .cd-top--fade-out {
+              opacity: .5
+          }
+
+          .js .cd-top--is-visible {
+              visibility: visible;
+              opacity: 1
+          }
+
+          .js .cd-top {
+              visibility: hidden;
+              opacity: 0;
+              transition: opacity .3s, visibility .3s, background-color .3s
+          }
+
+          .cd-top {
+              position: fixed;
+              bottom: 20px;
+              bottom: var(--cd-back-to-top-margin);
+              right: 20px;
+              right: var(--cd-back-to-top-margin);
+              display: inline-block;
+              height: 40px;
+              height: var(--cd-back-to-top-size);
+              width: 40px;
+              width: var(--cd-back-to-top-size);
+              box-shadow: 0 0 10px rgba(0, 0, 0, .05) !important;
+              background: url(https://res.cloudinary.com/dxfq3iotg/image/upload/v1571057658/cd-top-arrow.svg) no-repeat center 50%;
+              background-color: style="color:#eeb661";
+              background-color: hsla(var(--cd-color-3-h), var(--cd-color-3-s), var(--cd-color-3-l), 0.8)
+          }
+        </style>
+        <script>
+          $(document).ready(function() {
+          $(window).scroll(function() {
+          if ($(this).scrollTop() > 20) {
+          $('#toTopBtn').fadeIn();
+          } else {
+          $('#toTopBtn').fadeOut();
+          }
+          });
+
+          $('#toTopBtn').click(function() {
+          $("html, body").animate({
+          scrollTop: 0
+          }, 1000);
+          return false;
+          });
+          });
+        </script>
+        <a href="#" id="toTopBtn" class="bg-warning cd-top text-replace js-cd-top cd-top--is-visible cd-top--fade-out" data-abc="true"></a>
+        
+
+        <div class="bg-dark text-secondary px-4 py-5 text-center border-bottom ">
+          <h1 class="display-5 fw-bold text-white" style="font-family: 'Lyrica Deco'">Олимпиадный календарь</h1>
+          <div class="col-lg-6 mx-auto">
+            <p class="lead mb-4">Удобное и быстрое планирование олимпиадных мероприятий, наглядный календарь и возможность интеграции в Google-календарь.</p>
+            <div class="d-grid gap-2 d-sm-flex justify-content-sm-center mb-5">
+              <!-- АВТОРИЗАЦИЯ ТУТ -->
+              <button type="button" class="btn btn-outline-warning btn-lg px-4 me-sm-3 fw-bold">Авторизация через Google</button>
+            </div>
+          </div>
+          <div class="overflow-hidden" style="max-height: 30vh;">
+            <div class="container px-5">
+              <img src="image/example.png" class="img-fluid border rounded-3 shadow-lg mb-4" alt="Olympdate" width="700" height="500" loading="lazy">
+            </div>
+          </div>
+        </div>
+
+        <div class="container col-xxl-8 px-4 py-5">
+          <div class="row flex-lg-row-reverse align-items-center g-5 py-5">
+            <div class="col-10 col-sm-8 col-lg-6">
+            </div>
+            <div class="col-lg-6">
+              <h1 class="display-5 fw-bold lh-1 mb-3">Что это такое?</h1>
+              <p class="lead">Текст про то, что это такое</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="container col-xxl-8 px-4 py-5">
+          <div class="row flex-lg-row-reverse align-items-center g-5 py-5">
+            <div class="col-lg-6">
+              <h1 class="display-5 fw-bold lh-1 mb-3">Как этим пользоваться?</h1>
+              <p class="lead">Инструкция</p>
+            </div>
+            <div class="col-10 col-sm-8 col-lg-6">
+            </div>
+          </div>
+        </div>
+
+        <div class="container col-xxl-8 px-4 py-5">
+          <div class="row flex-lg-row-reverse align-items-center g-5 py-5">
+            <div class="col-10 col-sm-8 col-lg-6">
+            </div>
+            <div class="col-lg-6">
+              <h1 class="display-5 fw-bold lh-1 mb-3">Кто вы такие?</h1>
+              <p class="lead">Мы студенты 3 курса ПМИ ФКН бла-бла-бла</p>
+            </div>
+          </div>
+        </div>
+
+        <footer class="footer mt-auto py-3 bg-light">
+          <div class="container">
+            <ul class="nav justify-content-center border-bottom pb-3 mb-3">
+              <li class="nav-item"><a href="main.html" class="nav-link px-2 text-muted">Главная</a></li>
+              <li class="nav-item"><a href="search.html" class="nav-link px-2 text-muted">Поиск</a></li>
+              <!-- Эту кнопку убирать, если пользователь НЕ залогинен-->
+              <li class="nav-item"><a href="myolymps.html" class="nav-link px-2 text-muted">Мой список</a></li>
+              <li class="nav-item"><a href="about.html" class="nav-link px-2 text-muted">О проекте</a></li>
+              <li class="nav-item"><a href="https://github.com/GareevaAlica/olymp-calendar" class="nav-link px-2 text-muted">Github</a></li>
+            </ul>
+            <p class="text-center text-muted">Информация об олимпиадах взята с сайта <a class="text-warning" href="olimpiada.ru">Olimpiada.ru</a>.</p>
+            <p class="text-center text-muted">&copy; uwu gang, 2021 г.</p>
+          </div>
+        </footer>
+    <!-- Вариант 1: Bootstrap в связке с Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-/bQdsTh/da6pkI1MST/rWKFNjaCP5gBSY4sEBT38Q/9RBh9AH40zEOg7Hlq2THRZ" crossorigin="anonymous"></script>
+
+  </body>
+</html>
