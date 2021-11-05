@@ -1,0 +1,11 @@
+{% extends "base.html" %} {% block content %}
+<legend class="border-bottom mb-4">
+Вы должны предоставить доступ к гугл-календарю и информаю об аккаунте,
+    чтобы пользоваться сервисом.
+</legend>
+<div class="mt-2 d-grid alert-secondary">
+    <a href="{{ url_for('authorize') }}" class="alert-link">
+        Войти в аккаунт.
+    </a>
+</div>
+{% endblock %}
