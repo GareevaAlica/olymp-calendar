@@ -6,17 +6,41 @@
         frameborder="0" scrolling="no"></iframe>
 <div class="content-section">
     <form method="POST" action="">
-        {{ form.hidden_tag() }}
+        {{ search_form.hidden_tag() }}
+        <fieldset class="form-group">
+            <legend class="border-bottom mb-4">Поиск</legend>
+            <div class="form-group">
+                {{ search_form.olympiad_name_substr(class_="form-control
+                form-text",
+                placeholder=search_form.olympiad_name_substr.description)}}
+                <div>
+                    {% for field in search_form.choose_fields %}
+                    {{ field(class_="btn-check") }}
+                    {{ field.label(class_="btn btn-outline-secondary") }}
+                    {% endfor %}
+                </div>
+                {{ search_form.min_class(class_="form-control", required="") }}
+                {{ search_form.max_class(class_="form-control", required="") }}
+                <div>
+                {{ search_form.user_belong(class_="form-check-input") }}
+                {{ search_form.user_belong.label }}
+                </div>
+                {{ search_form.search_submit(class="btn btn-outline-info") }}
+            </div>
+        </fieldset>
+        {{ choose_form.hidden_tag() }}
         <fieldset class="form-group">
             <legend class="border-bottom mb-4">Выбор</legend>
             <div class="form-group">
-                {{ form.submit(class="btn btn-outline-info") }}
+                {{ choose_form.choose_submit(class="btn btn-outline-info") }}
             </div>
-            {% for choice in form.choose_olympiads %}
+            {% for choice in choose_form.choose_olympiads %}
+            {% if choice.data|int in needed_olympiads_id %}
             <div class="form-check">
                 {{ choice(class="form-check-input", type="checkbox") }}
                 {{ choice.label }}
             </div>
+            {% endif %}
             {% endfor %}
         </fieldset>
     </form>

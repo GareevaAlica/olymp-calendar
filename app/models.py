@@ -118,6 +118,10 @@ class Field(db.Model):
         return Field.query.filter_by(id=id).first()
 
     @staticmethod
+    def get_all():
+        return Field.query.all()
+
+    @staticmethod
     def get_or_create(name):
         search_field = Field.query.filter_by(name=name).first()
         if search_field is None:
@@ -140,9 +144,10 @@ class SearchParams:
     user_email: id
 
     def __init__(self, olympiad_name_substr,
-                 fields, min_class, max_class, user_email):
+                 fields, min_class, max_class, user_email=None):
         self.olympiad_name_substr = olympiad_name_substr
-        self.fields = fields
+        self.fields = fields if len(fields) else [field.id for field in
+                                                  Field.get_all()]
         self.min_class = min_class
         self.max_class = max_class
         self.user_email = user_email
@@ -153,7 +158,8 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     user_email = db.Column(db.String, unique=True)
     calendar_id = db.Column(db.String, unique=True)
-    olympiads = db.relationship('Olympiad', secondary=users_olympiads)
+    olympiads = db.relationship('Olympiad', secondary=users_olympiads,
+                                lazy='dynamic')
 
     def __repr__(self):
         return '<User: user_email = {}, calendar_id = {}>'.format(
@@ -172,11 +178,11 @@ class User(db.Model):
     @staticmethod
     def search_olympiads(search_params: SearchParams):
         user = User.get_by_user_email(search_params.user_email)
-        return (Olympiad if user is None else user.olympiads) \
-            .query \
+        return (Olympiad.query if user is None else user.olympiads) \
             .join(Olympiad.fields) \
-            .filter(Field.name.in_(search_params.fields)) \
-            .filter(func.lower(Olympiad.name).contains(search_params.olympiad_name_substr, autoescape=True)) \
+            .filter(Field.id.in_(search_params.fields)) \
+            .filter(func.lower(Olympiad.name).contains(
+            search_params.olympiad_name_substr, autoescape=True)) \
             .filter(~(Olympiad.max_class < search_params.min_class)) \
             .filter(~(Olympiad.min_class > search_params.max_class)) \
             .all()
