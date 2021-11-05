@@ -3,6 +3,7 @@ import requests
 from bs4 import BeautifulSoup
 import re
 
+
 class WebUtils:
     @staticmethod
     def getHtmlByUrl(url):
@@ -74,9 +75,15 @@ class WebUtils:
 
     @staticmethod
     def __getFieldsTokens(soup):
-        fieldsTokens = soup.findAll(
+        div_fields = soup.find(
+            'div',
+            attrs={'class': 'subject_tags_full'}
+        )
+        if not div_fields:
+            return None
+        fieldsTokens = div_fields.findAll(
             'span',
-            attrs={'class': 'subject_tag small-tag'}
+            attrs={'class': 'subject_tag'}
         )
         return fieldsTokens
 

@@ -2,8 +2,7 @@ from typing import List
 
 from app import db
 from app.utils.Google import GoogleCalendar
-from sqlalchemy import delete, func, cast
-from sqlalchemy_utils import IntRangeType
+from sqlalchemy import delete, func
 
 olympiads_fields = \
     db.Table('olympiads_fields', db.Model.metadata,
@@ -27,20 +26,24 @@ class Olympiad(db.Model):
     # ссылка олимпиады на https://olimpiada.ru
     url = db.Column(db.String)
     # классы
-    classes = db.Column(db.String)
+    min_class = db.Column(db.Integer)
+    max_class = db.Column(db.Integer)
     # события проведения олимпиады
     events = db.relationship('Event', backref='olympiad', lazy='dynamic')
     fields = db.relationship('Field', secondary=olympiads_fields)
 
-    def __init__(self, name, url=None, classes=None):
+    def __init__(self, name, url=None, min_class=None, max_class=None):
         self.name = name
         self.url = url
-        self.classes = classes
+        self.min_class = min_class
+        self.max_class = max_class
 
     def __repr__(self):
         return '<Olympiad: name = {},' \
                ' url = {},' \
-               ' classes = {}>'.format(self.name, self.url, self.classes)
+               ' min_class = {},' \
+               ' max_class = {}>'.format(self.name, self.url,
+                                         self.min_class, self.max_class)
 
     def save(self):
         db.session.add(self)
@@ -115,6 +118,10 @@ class Field(db.Model):
         return Field.query.filter_by(id=id).first()
 
     @staticmethod
+    def get_all():
+        return Field.query.all()
+
+    @staticmethod
     def get_or_create(name):
         search_field = Field.query.filter_by(name=name).first()
         if search_field is None:
@@ -134,14 +141,16 @@ class SearchParams:
     fields: List[str]
     min_class: int
     max_class: int
-    user_id: id
+    user_email: id
 
-    def __init__(self, olympiad_name_substr, fields, min_class, max_class, user_id):
+    def __init__(self, olympiad_name_substr,
+                 fields, min_class, max_class, user_email=None):
         self.olympiad_name_substr = olympiad_name_substr
-        self.fields = fields
+        self.fields = fields if len(fields) else [field.id for field in
+                                                  Field.get_all()]
         self.min_class = min_class
         self.max_class = max_class
-        self.user_id = user_id
+        self.user_email = user_email
 
 
 class User(db.Model):
@@ -149,7 +158,8 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     user_email = db.Column(db.String, unique=True)
     calendar_id = db.Column(db.String, unique=True)
-    olympiads = db.relationship('Olympiad', secondary=users_olympiads)
+    olympiads = db.relationship('Olympiad', secondary=users_olympiads,
+                                lazy='dynamic')
 
     def __repr__(self):
         return '<User: user_email = {}, calendar_id = {}>'.format(
@@ -167,14 +177,14 @@ class User(db.Model):
 
     @staticmethod
     def search_olympiads(search_params: SearchParams):
-        user = User.get_by_client_id(search_params.user_id)
-        return (Olympiad if user is None else user.olympiads) \
-            .query \
+        user = User.get_by_user_email(search_params.user_email)
+        return (Olympiad.query if user is None else user.olympiads) \
             .join(Olympiad.fields) \
-            .filter(Field.name.in_(search_params.fields)) \
-            .filter(func.lower(Olympiad.name).contains(search_params.olympiad_name_substr.lower(), autoescape=True)) \
-            .filter(~(cast(Olympiad.classes, IntRangeType) < search_params.min_class)) \
-            .filter(~(cast(Olympiad.classes, IntRangeType) > search_params.max_class)) \
+            .filter(Field.id.in_(search_params.fields)) \
+            .filter(func.lower(Olympiad.name).contains(
+            search_params.olympiad_name_substr, autoescape=True)) \
+            .filter(~(Olympiad.max_class < search_params.min_class)) \
+            .filter(~(Olympiad.min_class > search_params.max_class)) \
             .all()
 
     @staticmethod
