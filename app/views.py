@@ -101,7 +101,7 @@ def myolymps():
     return render_template("myolymps.html",
                            olympiads_list=olympiads_list,
                            src=get_src(calendar_id),
-                           title='Мой список',
+                           title='Мои олимпиады',
                            is_login=(('credentials' in session) and (
                                    'user_email' in session)))
 
