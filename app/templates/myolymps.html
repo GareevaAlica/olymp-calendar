@@ -1,4 +1,9 @@
 {% extends "base.html" %} {% block content %}
+<h3 class="display-6 text-center">Чтобы события отображались на виджете,
+    сделайте общедоступным календарь</h3>
+<div class="text-center px-4">
+<iframe src="{{ src }}" style="border: 0" width=80% height="700"
+        frameborder="0" scrolling="no"></iframe></div>
 {% for olympiad in olympiads_list  %}
     <br>
     {{ olympiad.name }}, {{ olympiad.url }}:

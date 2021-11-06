@@ -10,7 +10,7 @@ class MultiCheckboxField(SelectMultipleField):
 
 class MultiCheckboxForm(FlaskForm):
     choose_olympiads = MultiCheckboxField()
-    choose_submit = SubmitField("CHOOSE")
+    choose_submit = SubmitField("Сохранить изменения")
 
 
 class SearchForm(FlaskForm):
@@ -23,4 +23,4 @@ class SearchForm(FlaskForm):
     max_class = SelectField(choices=list(zip(class_range, class_range)),
                             default='11')
     user_belong = BooleanField('Мои олимпиады', default=False)
-    search_submit = SubmitField("SEARCH")
+    search_submit = SubmitField("Искать")

@@ -52,11 +52,11 @@ def oauth_callback():
     # Use the authorization server's response to fetch the OAuth 2.0 tokens.
     authorization_response = request.url
     if 'calendar' not in authorization_response:
-        return redirect('main')
+        return redirect('exit')
     try:
         flow.fetch_token(authorization_response=authorization_response)
     except:
-        return redirect('main')
+        return redirect('exit')
     # Store credentials in the session.
     # ACTION ITEM: In a production app, you likely want to save these
     #              credentials in a persistent database instead.
@@ -74,7 +74,7 @@ def oauth_callback():
     try:
         User.try_add_user(user_email, credentials)
     except:
-        return redirect('main')
+        return redirect('exit')
     return redirect(url_for('choose_olympiads'))
 
 

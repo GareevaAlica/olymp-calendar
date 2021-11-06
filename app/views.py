@@ -27,18 +27,15 @@ def get_src(calendar_id):
 
 @app.route("/", methods=['GET'])
 def main():
-    is_login = True
-    if 'credentials' not in session:
-        is_login=False
     return render_template("main.html",
                            title='Олимпдейт',
-                           is_login=is_login)
+                           is_login=(('credentials' in session) and (
+                                   'user_email' in session)))
+
 
 @app.route("/choose_olympiads", methods=['GET', 'POST'])
 def choose_olympiads():
-    is_login = True
-    if 'credentials' not in session:
-        is_login=False
+    if 'credentials' not in session or 'user_email' not in session:
         return redirect('main')
     choose_form = MultiCheckboxForm()
     search_form = SearchForm()
@@ -56,7 +53,8 @@ def choose_olympiads():
     needed_olympiads_id = \
         set([olympiad.id for olympiad in User.search_olympiads(search)])
     if search_form.search_submit.data and search_form.validate_on_submit():
-        pass
+        if int(search_form.max_class.data) < int(search_form.min_class.data):
+            search_form.min_class.data = search_form.max_class.data
 
     choose_form.choose_olympiads.choices = \
         create_choose_list(all_olympiads_list)
@@ -74,7 +72,7 @@ def choose_olympiads():
                                                    old_olympiads_ids,
                                                    new_olympiads_ids)
         except:
-            return redirect('main')
+            return redirect('exit')
         User.save_olympiad_list(user_email, new_olympiads_ids)
         choose_form.choose_olympiads.data = list(map(str, new_olympiads_ids))
     else:
@@ -85,7 +83,7 @@ def choose_olympiads():
                            needed_olympiads_id=needed_olympiads_id,
                            src=get_src(calendar_id),
                            title='Поиск',
-                           is_login=is_login)
+                           is_login=True)
 
 
 # Если страницы не существует - перенаправляем на главную.
@@ -93,23 +91,34 @@ def choose_olympiads():
 def page_not_found(e):
     return redirect('/')
 
+
 @app.route("/myolymps", methods=['GET'])
 def myolymps():
-    is_login = True
-    if 'credentials' not in session:
-        is_login=False
+    if 'credentials' not in session or 'user_email' not in session:
+        return redirect('main')
     user_email = session['user_email']
+    calendar_id = User.get_calendar_id(User.get_id(user_email))
     olympiads_list = User.get_olympiads_by_user_email(user_email)
     return render_template("myolymps.html",
                            olympiads_list=olympiads_list,
+                           src=get_src(calendar_id),
                            title='Мой список',
-                           is_login=is_login)
-                           
+                           is_login=(('credentials' in session) and (
+                                   'user_email' in session)))
+
+
 @app.route("/about", methods=['GET'])
 def about():
-    is_login = True
-    if 'credentials' not in session:
-        is_login=False
     return render_template("about.html",
                            title='О проекте',
-                           is_login=is_login)
+                           is_login=(('credentials' in session) and (
+                                   'user_email' in session)))
+
+
+@app.route("/exit")
+def exit():
+    if 'credentials' in session:
+        del session['credentials']
+    if 'user_email' in session:
+        del session['user_email']
+    return redirect('/')
