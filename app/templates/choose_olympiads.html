@@ -4,7 +4,7 @@
         {{ search_form.hidden_tag() }}
         <fieldset class="form-group">
             <div class="form-group px-4 py-5 text-center">
-                <h1 class="display-5 fw-bold" style="font-family: 'Lyrica Deco'">Поиск</h1>
+                <h1 class="display-5 fw-bold" style="font-family: 'Poiret One'">ПОИСК</h1>
                 <ul class="justify-content-center nav col-12 col-lg-auto my-2 my-md-0 text-small">
                     <li class="col-lg-11">
                         {{ search_form.olympiad_name_substr(class_="form-control
@@ -36,7 +36,13 @@
                         <h5><strong>Классы:</strong></h5>
                     </li>
                     <li>
+                        <h5>С &nbsp; &nbsp;</h5>
+                    </li>
+                    <li>
                         {{ search_form.min_class(class_="form-select", required="") }}
+                    </li>
+                    <li>
+                        <h5>&nbsp; &nbsp; по &nbsp; &nbsp;</h5>
                     </li>
                     <li>
                         {{ search_form.max_class(class_="form-select", required="") }}
@@ -56,22 +62,22 @@
                 </ul>
                 <ul class="justify-content-center nav col-12 col-lg-auto my-2 my-md-0 text-small">
                     <li class="col-lg-11">
-                        {{ search_form.search_submit(class="btn btn-warning") }}
+                        {{ search_form.search_submit(class="btn btn-warning btn-lg") }}
                     </li>
                 </ul>
             </div>
         </fieldset>
         {{ choose_form.hidden_tag() }}
         <fieldset class="form-group px-4">
-            <h1 class="display-5 fw-bold" style="font-family: 'Lyrica Deco'">Результаты</h1>
+            <h1 class="display-5 fw-bold" style="font-family: 'Poiret One'">РЕЗУЛЬТАТЫ</h1>
             <div class="form-group text-center">
-                {{ choose_form.choose_submit(class="btn btn-outline-warning") }}
+                {{ choose_form.choose_submit(class="btn btn-outline-warning btn-lg") }}
             </div>
             <br>
             {% for choice in choose_form.choose_olympiads %}
             {% if choice.data|int in needed_olympiads_id %}
-            <div class="list-group">
-                <label class="list-group-item h5">
+            <div class="list-group ">
+                <label class="list-group-item list-group-item-action h5">
                 {{ choice(class="form-check-input me-1", type="checkbox") }}
                 {{ choice.label() }}
                 </label>
@@ -80,7 +86,7 @@
             {% endfor %}
             <br>
             <div class="form-group text-center">
-                {{ choose_form.choose_submit(class="btn btn-outline-warning") }}
+                {{ choose_form.choose_submit(class="btn btn-outline-warning btn-lg") }}
             </div>
             <br>
         </fieldset>

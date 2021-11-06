@@ -1,10 +1,6 @@
 import googleapiclient
-from google.oauth2 import service_account
 from googleapiclient.discovery import build
 import datetime
-from config import SERVICE_ACCOUNT_FILE
-
-SCOPES = ['https://www.googleapis.com/auth/calendar']
 
 
 def to_iso_extended(date):
@@ -18,10 +14,6 @@ def from_iso_extended(str):
 
 class GoogleCalendar():
     def __init__(self, calendar_id, credentials=None):
-        if credentials is None:
-            credentials = \
-                service_account.Credentials.from_service_account_file(
-                    SERVICE_ACCOUNT_FILE, scopes=SCOPES)
         self.service = googleapiclient.discovery.build('calendar', 'v3',
                                                        credentials=credentials)
         self.calendar_id = calendar_id

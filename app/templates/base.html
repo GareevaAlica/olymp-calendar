@@ -24,6 +24,10 @@
     <!-- Latest compiled JavaScript -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Neucha&family=Poiret+One&display=swap" rel="stylesheet"> 
+
     <title>{{title}}</title>
 </head>
 <body>
@@ -32,7 +36,7 @@
           <div class="container">
             <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
                 <a width=241.6 height=60.4 href="{{ url_for('main') }}" class="d-flex align-items-center my-2 my-lg-0 me-lg-auto text-white text-decoration-none">
-                  <h1 class="display-5 fw-bold text-warning" style="font-family: 'Lyrica Deco'">Олимпдейт</h1>
+                  <h1 class="display-5 fw-bold text-warning" style="font-family: 'Poiret One'">ОЛИМПДЕЙТ</h1>
                 </a>
 
               <ul class="nav col-12 col-lg-auto my-2 justify-content-center my-md-0 text-small">
@@ -53,7 +57,7 @@
                 <li>
                   <a href="{{ url_for('myolymps') }}" class="nav-link text-white">
                     <svg class="bi d-block mx-auto mb-1" width="24" height="24"><use xlink:href="myolymps.html"/></svg>
-                    <p class="text-warning">Мой список</p>
+                    <p class="text-warning">Мои олимпиады</p>
                   </a>
                 </li>
                 {% endif %}
@@ -66,10 +70,10 @@
                 <li>
                     <svg class="bi d-block mx-auto mb-1" width="24" height="24"><use xlink:href="search.html"/></svg>
                     {% if not is_login %}
-                    <a href="{{ url_for('authorize') }}" type="button" class="btn btn-outline-warning">Login</a>
+                    <a href="{{ url_for('authorize') }}" type="button" class="btn btn-outline-warning">Войти</a>
                     {% else %}
                     <!-- Эту кнопку убирать, если пользователь НЕ залогинен-->
-                    <a href="{{ url_for('exit') }}" type="button" class="btn btn-outline-light me-2">Exit</a>
+                    <a href="{{ url_for('exit') }}" type="button" class="btn btn-outline-light me-2">Выйти</a>
                     {% endif %}
                 </li>
               </ul>
@@ -155,7 +159,7 @@
         <!-- Эту кнопку убирать, если пользователь НЕ залогинен-->
         {% if is_login %}
         <li class="nav-item"><a href="search.html" class="nav-link px-2 text-muted">Поиск</a></li>
-        <li class="nav-item"><a href="myolymps.html" class="nav-link px-2 text-muted">Мой список</a></li>
+        <li class="nav-item"><a href="myolymps.html" class="nav-link px-2 text-muted">Мои олимпиады</a></li>
         {% endif %}
         <li class="nav-item"><a href="about.html" class="nav-link px-2 text-muted">О проекте</a></li>
         <li class="nav-item"><a href="https://github.com/GareevaAlica/olymp-calendar" class="nav-link px-2 text-muted">Github</a></li>

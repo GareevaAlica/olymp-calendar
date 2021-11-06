@@ -57,7 +57,7 @@ def choose_olympiads():
             search_form.min_class.data = search_form.max_class.data
 
     choose_form.choose_olympiads.choices = \
-        create_choose_list(all_olympiads_list)
+        sorted(create_choose_list(all_olympiads_list), key=lambda x: x[1])
     old_olympiads_ids = User.get_olympiads_id_by_user_email(user_email)
     if choose_form.choose_submit.data and choose_form.validate_on_submit():
         new_olympiads_ids = list(map(int, choose_form.choose_olympiads.data))
@@ -74,8 +74,8 @@ def choose_olympiads():
             return redirect('exit')
         User.save_olympiad_list(user_email, new_olympiads_ids)
         choose_form.choose_olympiads.data = list(map(str, new_olympiads_ids))
-    else:
-        choose_form.choose_olympiads.data = list(map(str, old_olympiads_ids))
+        return redirect('choose_olympiads')
+    choose_form.choose_olympiads.data = list(map(str, old_olympiads_ids))
     return render_template("choose_olympiads.html",
                            choose_form=choose_form,
                            search_form=search_form,
@@ -101,7 +101,7 @@ def myolymps():
     return render_template("myolymps.html",
                            olympiads_list=olympiads_list,
                            src=get_src(calendar_id),
-                           title='Мой список',
+                           title='Мои олимпиады',
                            is_login=(('credentials' in session) and (
                                    'user_email' in session)))
 
