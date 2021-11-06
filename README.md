@@ -75,7 +75,7 @@ python main.py
 
 * [OAuth 2.0] - используется для авторизации в google аккаунте
 * [Google Calendar API] - позволяет создавать календари и создавать\удалять события в них
-* Python+BeautifulSoup+Flask+SQLAlchemy+Bootstap
+* Python+BeautifulSoup+Flask+SQLAlchemy+Bootstrap
 
 
 [Гареева Алиса]:<https://github.com/GareevaAlice>
