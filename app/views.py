@@ -27,13 +27,18 @@ def get_src(calendar_id):
 
 @app.route("/", methods=['GET'])
 def main():
+    is_login = True
+    if 'credentials' not in session:
+        is_login=False
     return render_template("main.html",
-                           title='Главная')
-
+                           title='Олимпдейт',
+                           is_login=is_login)
 
 @app.route("/choose_olympiads", methods=['GET', 'POST'])
 def choose_olympiads():
+    is_login = True
     if 'credentials' not in session:
+        is_login=False
         return redirect('main')
     choose_form = MultiCheckboxForm()
     search_form = SearchForm()
@@ -79,10 +84,32 @@ def choose_olympiads():
                            search_form=search_form,
                            needed_olympiads_id=needed_olympiads_id,
                            src=get_src(calendar_id),
-                           title='Выбор олимпиад')
+                           title='Поиск',
+                           is_login=is_login)
 
 
 # Если страницы не существует - перенаправляем на главную.
 @app.errorhandler(404)
 def page_not_found(e):
     return redirect('/')
+
+@app.route("/myolymps", methods=['GET'])
+def myolymps():
+    is_login = True
+    if 'credentials' not in session:
+        is_login=False
+    user_email = session['user_email']
+    olympiads_list = User.get_olympiads_by_user_email(user_email)
+    return render_template("myolymps.html",
+                           olympiads_list=olympiads_list,
+                           title='Мой список',
+                           is_login=is_login)
+                           
+@app.route("/about", methods=['GET'])
+def about():
+    is_login = True
+    if 'credentials' not in session:
+        is_login=False
+    return render_template("about.html",
+                           title='О проекте',
+                           is_login=is_login)

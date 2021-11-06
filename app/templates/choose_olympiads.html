@@ -1,47 +1,96 @@
 {% extends "base.html" %} {% block content %}
-<legend class="border-bottom mb-4">Чтобы события отображались на виджете -
-    сделайте общедоступным календарь
-</legend>
-<iframe src="{{ src }}" style="border: 0" width="800" height="600"
-        frameborder="0" scrolling="no"></iframe>
+
+
+
+<h3 class="display-6 text-center">Чтобы события отображались на виджете,
+    сделайте общедоступным календарь</h3>
+<div class="text-center px-4">
+<iframe src="{{ src }}" style="border: 0" width=80% height="700"
+        frameborder="0" scrolling="no"></iframe></div>
 <div class="content-section">
     <form method="POST" action="">
         {{ search_form.hidden_tag() }}
         <fieldset class="form-group">
-            <legend class="border-bottom mb-4">Поиск</legend>
-            <div class="form-group">
-                {{ search_form.olympiad_name_substr(class_="form-control
-                form-text",
-                placeholder=search_form.olympiad_name_substr.description)}}
+            <div class="form-group px-4 py-5 text-center">
+                <h1 class="display-5 fw-bold" style="font-family: 'Lyrica Deco'">Поиск</h1>
+                <ul class="justify-content-center nav col-12 col-lg-auto my-2 my-md-0 text-small">
+                    <li class="col-lg-11">
+                        {{ search_form.olympiad_name_substr(class_="form-control
+                        form-text",
+                        placeholder=search_form.olympiad_name_substr.description)}}
+                    </li>
+                </ul>
+                <br>
                 <div>
-                    {% for field in search_form.choose_fields %}
-                    {{ field(class_="btn-check") }}
-                    {{ field.label(class_="btn btn-outline-secondary") }}
-                    {% endfor %}
+                    <ul class="nav col-12 col-lg-auto my-2 justify-content-center my-md-0 text-small">
+                        <li class="col-lg-1">
+                            <h5><strong>Предметы:</strong></h5>
+                        </li>
+                        <li class="col-lg-1">
+                        </li>
+                        <li class="col-lg-9">
+                            {% for field in search_form.choose_fields %}
+                            {{ field(class_="btn-check") }}
+                            {{ field.label(class_="btn btn-outline-warning btn-sm h6") }}
+                            {% endfor %}
+                        </li>
+                        <li class="col-lg-1">
+                        </li>
+                    </ul>
                 </div>
-                {{ search_form.min_class(class_="form-control", required="") }}
-                {{ search_form.max_class(class_="form-control", required="") }}
-                <div>
-                {{ search_form.user_belong(class_="form-check-input") }}
-                {{ search_form.user_belong.label }}
-                </div>
-                {{ search_form.search_submit(class="btn btn-outline-info") }}
+                <br>
+                <ul class="nav col-12 col-lg-auto my-2 justify-content-left my-md-0 text-small">
+                    <li class="col-lg-1">
+                        <h5><strong>Классы:</strong></h5>
+                    </li>
+                    <li>
+                        {{ search_form.min_class(class_="form-select", required="") }}
+                    </li>
+                    <li>
+                        {{ search_form.max_class(class_="form-select", required="") }}
+                    </li>
+                  </ul>
+                <br>
+                
+                <ul class="nav col-12 col-lg-auto my-2 justify-content-left my-md-0 text-small">
+                    <li class="col-lg-1">
+                    </li>
+                    <li>
+                        <div class="form-check form-switch h5">
+                        {{ search_form.user_belong(class_="form-check-input") }}
+                        {{ search_form.user_belong.label }}
+                        </div>
+                    </li>
+                </ul>
+                <ul class="justify-content-center nav col-12 col-lg-auto my-2 my-md-0 text-small">
+                    <li class="col-lg-11">
+                        {{ search_form.search_submit(class="btn btn-warning") }}
+                    </li>
+                </ul>
             </div>
         </fieldset>
         {{ choose_form.hidden_tag() }}
-        <fieldset class="form-group">
-            <legend class="border-bottom mb-4">Выбор</legend>
-            <div class="form-group">
-                {{ choose_form.choose_submit(class="btn btn-outline-info") }}
+        <fieldset class="form-group px-4">
+            <h1 class="display-5 fw-bold" style="font-family: 'Lyrica Deco'">Результаты</h1>
+            <div class="form-group text-center">
+                {{ choose_form.choose_submit(class="btn btn-outline-warning") }}
             </div>
+            <br>
             {% for choice in choose_form.choose_olympiads %}
             {% if choice.data|int in needed_olympiads_id %}
-            <div class="form-check">
-                {{ choice(class="form-check-input", type="checkbox") }}
-                {{ choice.label }}
+            <div class="list-group">
+                <label class="list-group-item h5">
+                {{ choice(class="form-check-input me-1", type="checkbox", value="") }}
+                {{ choice.label() }}
+                </label>
             </div>
             {% endif %}
             {% endfor %}
+            <br>
+            <div class="form-group text-center">
+                {{ choose_form.choose_submit(class="btn btn-outline-warning") }}
+            </div>
+            <br>
         </fieldset>
     </form>
 </div>
