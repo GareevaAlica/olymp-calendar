@@ -22,5 +22,5 @@ class SearchForm(FlaskForm):
                             default='1')
     max_class = SelectField(choices=list(zip(class_range, class_range)),
                             default='11')
-    user_belong = BooleanField('Мои олимпиады', default=False)
+    user_belong = BooleanField('Только "Мои олимпиады"', default=False)
     search_submit = SubmitField("Искать")

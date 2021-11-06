@@ -1,15 +1,15 @@
 {% extends "base.html" %} {% block content %}
-
-       
+        
 
 
         <div class="container col-xxl-8 px-4 py-5">
           <div class="row flex-lg-row-reverse align-items-center g-5 py-5">
             <div class="col-10 col-sm-8 col-lg-6">
+              <img src="../static/images/list.png" class="d-block mx-lg-auto img-fluid shadow-lg" alt="Список олимпиад" width="700" height="500" loading="lazy">
             </div>
             <div class="col-lg-6">
               <h1 class="display-5 fw-bold lh-1 mb-3">Что это такое?</h1>
-              <p class="lead">Текст про то, что это такое</p>
+              <p class="lead">Web-сервис для помощи планирования участия в олимпиадах на 2021/22 учебный год, используя <a class="text-warning" href="https://calendar.google.com/">Google Calendar</a> с удобным поиском интересующих олимпиад по различным фильтрам и просмотром назначенного плана.</p>
             </div>
           </div>
         </div>
@@ -18,9 +18,24 @@
           <div class="row flex-lg-row-reverse align-items-center g-5 py-5">
             <div class="col-lg-6">
               <h1 class="display-5 fw-bold lh-1 mb-3">Как этим пользоваться?</h1>
-              <p class="lead">Инструкция</p>
+              <ul class="lead list-group list-group-flush">
+                <li class="list-group-item">
+                  <strong>Step 1.</strong> Авторизоваться через Google. Это необходимо для создания Google-календаря.
+                </li>
+                <li class="list-group-item">
+                  <strong>Step 2.</strong> Через <a class="text-warning" href="{{ url_for('choose_olympiads') }}">Поиск</a> найти нужные олимпиады. Для вашего удобства есть фильтры по предметам и классам.
+                </li>
+                <li class="list-group-item">
+                  <strong>Step 3.</strong> Отметить их и сохранить изменения. После сохранения олимпиады добавятся в созданный для Вас календарь.
+                </li>
+                <li class="list-group-item">
+                  <strong>Step 4.</strong> Перейти в <a class="text-warning" href="{{ url_for('myolymps') }}">Мои олимпиады</a>. Там Вас будет ждать уже готовый календарь и список выбранных Вами олимпиад :)
+                </li>
+              </ul>
             </div>
             <div class="col-10 col-sm-8 col-lg-6">
+              <img src="../static/images/search.png" class="d-block mx-lg-auto img-fluid shadow-lg" alt="Поиск" width="900" height="700" loading="lazy">
+              <img src="../static/images/search2.png" class="d-block mx-lg-auto img-fluid shadow-lg" alt="Результаты поиска" width="900" height="700" loading="lazy">
             </div>
           </div>
         </div>
@@ -28,10 +43,26 @@
         <div class="container col-xxl-8 px-4 py-5">
           <div class="row flex-lg-row-reverse align-items-center g-5 py-5">
             <div class="col-10 col-sm-8 col-lg-6">
+              <img src="../static/images/uwu.jpg" class="d-block mx-lg-auto img-fluid shadow-lg" alt="uwu gang" width="700" height="500" loading="lazy">
             </div>
             <div class="col-lg-6">
               <h1 class="display-5 fw-bold lh-1 mb-3">Кто вы такие?</h1>
-              <p class="lead">Мы студенты 3 курса ПМИ ФКН бла-бла-бла</p>
+              <ul class="lead list-group list-group-flush">
+              <li class="list-group-item">
+              <strong class="h4">uwu gang</strong> &ndash; это студенты 3 курса ПМИ ФКН ВШЭ, а именно:
+              </li>
+              <li class="list-group-item">
+                  <a class="text-warning" href="https://github.com/GareevaAlice"><strong>Гареева Алиса</strong></a> - project manager, backend developer
+                  <br>
+                  <a class="text-warning" href="https://github.com/DedAzaMarks"><strong>Бордюгов Максим</strong></a> - backend developer
+                  <br>
+                  <a class="text-warning" href="https://github.com/Leo-nid"><strong>Ичалов Леонид</strong></a> - backend developer
+                  <br>
+                  <a class="text-warning" href="https://github.com/elevankoff"><strong>Леванков Егор</strong></a> - backend developer
+                  <br>
+                  <a class="text-warning" href="https://github.com/NanamyYu"><strong>Шатская Лиза</strong></a> - frontend developer
+              </li>
+              </ul>
             </div>
           </div>
         </div>
