@@ -61,9 +61,8 @@ def choose_olympiads():
     old_olympiads_ids = User.get_olympiads_id_by_user_email(user_email)
     if choose_form.choose_submit.data and choose_form.validate_on_submit():
         new_olympiads_ids = list(map(int, choose_form.choose_olympiads.data))
-        old_olympiads_ids = list(set(old_olympiads_ids) - \
-                                 (set(old_olympiads_ids) - set(
-                                     needed_olympiads_id)))
+        new_olympiads_ids = list(set(new_olympiads_ids) | (
+                set(old_olympiads_ids) - set(needed_olympiads_id)))
         credentials = \
             google.oauth2.credentials.Credentials(**session['credentials'])
         try:
