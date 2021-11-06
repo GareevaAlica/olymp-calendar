@@ -23,6 +23,7 @@ class Olympiad(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     # название олимпиады
     name = db.Column(db.String)
+    lower_name = db.Column(db.String)
     # ссылка олимпиады на https://olimpiada.ru
     url = db.Column(db.String)
     # классы
@@ -34,6 +35,7 @@ class Olympiad(db.Model):
 
     def __init__(self, name, url=None, min_class=None, max_class=None):
         self.name = name
+        self.lower_name = name.lower()
         self.url = url
         self.min_class = min_class
         self.max_class = max_class
@@ -145,7 +147,7 @@ class SearchParams:
 
     def __init__(self, olympiad_name_substr,
                  fields, min_class, max_class, user_email=None):
-        self.olympiad_name_substr = olympiad_name_substr
+        self.olympiad_name_substr = olympiad_name_substr.lower()
         self.fields = fields if len(fields) else [field.id for field in
                                                   Field.get_all()]
         self.min_class = min_class
@@ -181,7 +183,7 @@ class User(db.Model):
         return (Olympiad.query if user is None else user.olympiads) \
             .join(Olympiad.fields) \
             .filter(Field.id.in_(search_params.fields)) \
-            .filter(func.lower(Olympiad.name).contains(
+            .filter(Olympiad.lower_name.contains(
             search_params.olympiad_name_substr, autoescape=True)) \
             .filter(~(Olympiad.max_class < search_params.min_class)) \
             .filter(~(Olympiad.min_class > search_params.max_class)) \
