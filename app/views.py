@@ -57,7 +57,7 @@ def choose_olympiads():
             search_form.min_class.data = search_form.max_class.data
 
     choose_form.choose_olympiads.choices = \
-        create_choose_list(all_olympiads_list)
+        sorted(create_choose_list(all_olympiads_list), key=lambda x: x[1])
     old_olympiads_ids = User.get_olympiads_id_by_user_email(user_email)
     if choose_form.choose_submit.data and choose_form.validate_on_submit():
         new_olympiads_ids = list(map(int, choose_form.choose_olympiads.data))
