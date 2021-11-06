@@ -3,7 +3,6 @@ from google.oauth2 import service_account
 from googleapiclient.discovery import build
 import datetime
 from config import SERVICE_ACCOUNT_FILE
-from app.utils.get_olympiads_info_list import get_olympiads_info_list
 
 SCOPES = ['https://www.googleapis.com/auth/calendar']
 
@@ -36,12 +35,12 @@ class GoogleCalendar():
     def olympiad_to_calendar_event(self, olympiad, olympiad_event):
         event = {
             'summary':
-                f'{olympiad_event.event_name} :'
-                f' {olympiad.olympiad_name[:50] + "..."}',
+                f'{olympiad_event.name} :'
+                f' {olympiad.name[:50] + "..."}',
             'description':
-                f'{olympiad_event.event_name} '
+                f'{olympiad_event.name} '
                 f'<br>'
-                f'<a href="{olympiad.olympiad_url}">{olympiad.olympiad_name}</a>',
+                f'<a href="{olympiad.url}">{olympiad.name}</a>',
             'start':
                 {'dateTime': to_iso_extended(olympiad_event.date_start),
                  'timeZone': 'GMT+00:00'},
@@ -64,7 +63,7 @@ class GoogleCalendar():
     def delete_selected_olympiads(self, olympiads):
         olympiads_names_to_delete = set()
         for olympiad in olympiads:
-            olympiads_names_to_delete.add(olympiad.olympiad_name)
+            olympiads_names_to_delete.add(olympiad.name)
         page_token = None
         while True:
             events_result = self.service.events().list(
@@ -93,9 +92,11 @@ class GoogleCalendar():
         print('Create:', olympiads_to_create_ids)
 
         olympiads_to_delete = \
-            get_olympiads_info_list(all_olympiads_list, olympiads_to_delete_ids)
+            self.get_olympiads_class_list(all_olympiads_list,
+                                         olympiads_to_delete_ids)
         olympiads_to_create = \
-            get_olympiads_info_list(all_olympiads_list, olympiads_to_create_ids)
+            self.get_olympiads_class_list(all_olympiads_list,
+                                         olympiads_to_create_ids)
         self.delete_selected_olympiads(olympiads_to_delete)
         self.create_olympiad_events(olympiads_to_create, delete_all=False)
 
@@ -123,3 +124,15 @@ class GoogleCalendar():
         created_calendar = self.service.calendars().insert(
             body=calendar).execute()
         return created_calendar['id']
+
+    @staticmethod
+    def get_olympiads_class_list(olympiads_list, indexes=None):
+        if indexes is None:
+            indexes = set(range(1, len(olympiads_list) + 1))
+        else:
+            indexes = set(map(int, indexes))
+        olympiads_class_list = list()
+        for olympiad in olympiads_list:
+            if olympiad.id in indexes:
+                olympiads_class_list.append(olympiad)
+        return olympiads_class_list

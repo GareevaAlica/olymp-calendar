@@ -5,11 +5,13 @@ from datetime import date
 from typing import NamedTuple
 import re
 
+
 class OlympiadInfoTuple(NamedTuple):
     olympiad_name: str
     olympiad_url: str
     events: list
-    classes: str
+    min_class: int
+    max_class: int
     fields: list
 
 
@@ -100,6 +102,7 @@ class DatabaseUpdater():
                 in enumerate(olympiads_url_dict.items()):
             if olympiad_url is None:
                 continue
+            olympiad_name = re.sub('[«»]', '', olympiad_name)
             # получение информацию об олимпиаде по url
             olympiad_info = WebUtils.getOlympiadInfoByUrl(olympiad_url)
             # информация о расписании событий
@@ -111,10 +114,13 @@ class DatabaseUpdater():
                 events_list.append(EventTuple(event_name,
                                               date_start_end['date_start'],
                                               date_start_end['date_end']))
+            min_class, max_class = \
+                self.__get_min_max_class(olympiad_info.classes)
             olympiads_info_list.append(OlympiadInfoTuple(olympiad_name,
                                                          olympiad_url,
                                                          events_list,
-                                                         olympiad_info.classes,
+                                                         min_class,
+                                                         max_class,
                                                          olympiad_info.fields))
             print('[{} | {}] {}'.format(i + 1, len(olympiads_url_dict),
                                         olympiads_info_list[-1].olympiad_name))
@@ -131,7 +137,8 @@ class DatabaseUpdater():
             olympiad_id = \
                 self.__create_olympiad(name=olympiad_info.olympiad_name,
                                        url=olympiad_info.olympiad_url,
-                                       classes=olympiad_info.classes)
+                                       min_class=olympiad_info.min_class,
+                                       max_class=olympiad_info.max_class)
             for event in olympiad_info.events:
                 self.__create_event(olympiad_id=olympiad_id,
                                     name=event.event_name,
@@ -140,14 +147,15 @@ class DatabaseUpdater():
             Olympiad.save_field_list(olympiad_id, olympiad_info.fields)
 
     @staticmethod
-    def __create_olympiad(name, url=None, classes=None):
+    def __create_olympiad(name, url=None, min_class=None, max_class=None):
         """
         Сохранение олимпиады в базу данных
         :param name: название олимпиады
         :param url: url олимпиады
         :return: id сохраненной олимпиады
         """
-        olympiad = Olympiad(name=name, url=url, classes=classes)
+        olympiad = Olympiad(name=name, url=url,
+                            min_class=min_class, max_class=max_class)
         id = olympiad.save()
         print(olympiad)
         return id
@@ -197,3 +205,12 @@ class DatabaseUpdater():
         if month_number < 9:
             year = 2022
         return date(year, month_number, day)
+
+    @staticmethod
+    def __get_min_max_class(classes):
+        if classes == '':
+            return 1, 11
+        classes = classes.split('–')
+        min_class = classes[0]
+        max_class = min_class if len(classes) == 1 else classes[1]
+        return int(min_class), int(max_class)

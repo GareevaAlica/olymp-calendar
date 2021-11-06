@@ -37,7 +37,7 @@ user_email = 'alica.gareeva@gmail.com'
 create_user(user_email,
             'u54rqm90ph7enrmdu7tk2ol4l8@group.calendar.google.com')
 
-User.save_olympiad_list(user_email, [i for i in range(30)])
+User.save_olympiad_list(user_email, [i for i in range(1, 10)])
 
 db.session.commit()  # обновляем базу
 print('Success')
