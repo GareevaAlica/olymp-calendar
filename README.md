@@ -61,7 +61,7 @@ flask db upgrade
 
 Заполнение
 ```
-python fill_test_db.py
+python fill_db.py
 ```
 
 5. Запуск приложения:

@@ -74,8 +74,8 @@ def choose_olympiads():
             return redirect('exit')
         User.save_olympiad_list(user_email, new_olympiads_ids)
         choose_form.choose_olympiads.data = list(map(str, new_olympiads_ids))
-    else:
-        choose_form.choose_olympiads.data = list(map(str, old_olympiads_ids))
+        return redirect('choose_olympiads')
+    choose_form.choose_olympiads.data = list(map(str, old_olympiads_ids))
     return render_template("choose_olympiads.html",
                            choose_form=choose_form,
                            search_form=search_form,
