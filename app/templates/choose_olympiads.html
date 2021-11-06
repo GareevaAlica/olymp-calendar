@@ -76,8 +76,8 @@
             <br>
             {% for choice in choose_form.choose_olympiads %}
             {% if choice.data|int in needed_olympiads_id %}
-            <div class="list-group">
-                <label class="list-group-item h5">
+            <div class="list-group ">
+                <label class="list-group-item list-group-item-action h5">
                 {{ choice(class="form-check-input me-1", type="checkbox") }}
                 {{ choice.label() }}
                 </label>

@@ -4,13 +4,24 @@
 <div class="text-center px-4">
 <iframe src="{{ src }}" style="border: 0" width=80% height="700"
         frameborder="0" scrolling="no"></iframe></div>
-{% for olympiad in olympiads_list  %}
-    <br>
-    {{ olympiad.name }}, {{ olympiad.url }}:
-    {% for event in olympiad.events  %}
-        <br>
-        {{ event.name }}, {{ event.date_start }}, {{ event.date_end }}
-    {% endfor %}
-    <br>
-{% endfor %}
+<div class="container list-group px-4">
+    <div class="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+        {% for olympiad in olympiads_list|sort(attribute='name')  %}
+            <br>
+            <div   class="list-group-item list-group-item-action h5">
+            <h4><strong>{{ olympiad.name }}</strong></h4>
+            {% for event in olympiad.events  %}
+                {{ event.name }}: {{ event.date_start }}
+                {% if event.date_end is not none %}
+                    &mdash; {{ event.date_end }}
+                {% endif %}
+                <br>
+            {% endfor %}
+            <br>
+            <a href="{{ olympiad.url }}" type="button" class="btn btn-warning">Страница олимпиады</a>
+            </div>
+            <br>
+        {% endfor %}
+    </div>
+</div>
 {% endblock %}

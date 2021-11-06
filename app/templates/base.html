@@ -66,10 +66,10 @@
                 <li>
                     <svg class="bi d-block mx-auto mb-1" width="24" height="24"><use xlink:href="search.html"/></svg>
                     {% if not is_login %}
-                    <a href="{{ url_for('authorize') }}" type="button" class="btn btn-outline-warning">Login</a>
+                    <a href="{{ url_for('authorize') }}" type="button" class="btn btn-outline-warning">Войти</a>
                     {% else %}
                     <!-- Эту кнопку убирать, если пользователь НЕ залогинен-->
-                    <a href="{{ url_for('exit') }}" type="button" class="btn btn-outline-light me-2">Exit</a>
+                    <a href="{{ url_for('exit') }}" type="button" class="btn btn-outline-light me-2">Выйти</a>
                     {% endif %}
                 </li>
               </ul>
