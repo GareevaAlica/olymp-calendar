@@ -49,12 +49,19 @@ pip install -r requirements.txt
 * добавление информации для OAuth 2.0:
   * *CLIENT_SECRET* - путь к *.json* файлу, где лежат данные для доступа к [OAuth 2.0]
 
-4. Настройка датабазы:
+4. Настройка базы данных:
+
+Создание
 ```
 export FLASK_APP=main.py (или set FLASK_APP=main.py , если не выходит первое)
 flask db init
 flask db migrate
 flask db upgrade
+```
+
+Заполнение
+```
+python fill_test_db.py
 ```
 
 5. Запуск приложения:
