@@ -1,5 +1,6 @@
 import googleapiclient
 from googleapiclient.discovery import build
+from app.utils.CSVLogger import logger
 import datetime
 
 
@@ -23,6 +24,9 @@ class GoogleCalendar():
                                          body=event).execute()
 
         print('Event created: %s' % (e.get('summary')))
+        logger.add_row(['event created',
+                        'calendar_id: ' + self.calendar_id,
+                        'summary: ' + e.get('summary')])
 
     def olympiad_to_calendar_event(self, olympiad, olympiad_event):
         event = {
@@ -70,6 +74,9 @@ class GoogleCalendar():
                     self.service.events().delete(calendarId=self.calendar_id,
                                                  eventId=event['id']).execute()
                     print('Event deleted: %s' % (event['summary']))
+                    logger.add_row(['event deleted',
+                                    'calendar_id: ' + self.calendar_id,
+                                    'summary: ' + event['summary']])
             page_token = events_result.get('nextPageToken', [])
             if page_token == []:
                 break
@@ -85,10 +92,10 @@ class GoogleCalendar():
 
         olympiads_to_delete = \
             self.get_olympiads_class_list(all_olympiads_list,
-                                         olympiads_to_delete_ids)
+                                          olympiads_to_delete_ids)
         olympiads_to_create = \
             self.get_olympiads_class_list(all_olympiads_list,
-                                         olympiads_to_create_ids)
+                                          olympiads_to_create_ids)
         self.delete_selected_olympiads(olympiads_to_delete)
         self.create_olympiad_events(olympiads_to_create, delete_all=False)
 
