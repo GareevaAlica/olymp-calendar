@@ -1,5 +1,6 @@
 from app.utils.WebUtils import WebUtils
 from app.utils.JSONHandler import JSONHandler
+from app.utils.CSVLogger import logger
 from app.models import Olympiad, Event
 from datetime import date
 from typing import NamedTuple
@@ -49,6 +50,9 @@ class DatabaseUpdater():
             self.json_handler.save_in_file('olympiads_map',
                                            all_olympiads_url_dict)
         print('Got Olympiads Map:', len(all_olympiads_url_dict))
+        logger.add_row(['got olympiads map',
+                        'server',
+                        'amount: ' + str(len(all_olympiads_url_dict))])
 
         # получаем "окончательные" ссылки на олимпиады
         olympiads_url_dict = \
@@ -56,6 +60,9 @@ class DatabaseUpdater():
         if save_test_db:
             self.json_handler.save_in_file('olympiads_url', olympiads_url_dict)
         print('Got Olympiads url dict', len(olympiads_url_dict))
+        logger.add_row(['got olympiads url dict',
+                        'server',
+                        'amount: ' + str(len(olympiads_url_dict))])
 
         # получаем информацию об олимпиадах
         olympiads_info_list = \
@@ -65,6 +72,9 @@ class DatabaseUpdater():
                                            self.json_handler.from_class_to_dict(
                                                olympiads_info_list))
         print('Got Olympiads Info List', len(olympiads_info_list))
+        logger.add_row(['got olympiads info list',
+                        'server',
+                        'amount: ' + str(len(olympiads_info_list))])
 
         # сохраняем олимпиады и их события в базу данных
         self.__save_olympiads_info(olympiads_info_list)

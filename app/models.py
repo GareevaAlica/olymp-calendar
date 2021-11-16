@@ -2,6 +2,7 @@ from typing import List
 
 from app import db
 from app.utils.Google import GoogleCalendar
+from app.utils.CSVLogger import logger
 from sqlalchemy import delete, func
 
 olympiads_fields = \
@@ -229,12 +230,20 @@ class User(db.Model):
 
     @staticmethod
     def try_add_user(user_email, credentials):
+        log_info = ['login user', 'user: ' + user_email]
         if not User.user_email_exists(user_email):
             google_calendar = GoogleCalendar(None, credentials)
             calendar_id = google_calendar.create_calendar()
             user = User(user_email=user_email, calendar_id=calendar_id)
             user.save()
             print(user)
+            log_info.append('type: new_user,\n'
+                            'calendar_id: ' + calendar_id)
+        else:
+            user = User.get_by_user_email(user_email)
+            log_info.append('type: old_user,\n'
+                            'calendar_id: ' + user.calendar_id)
+        logger.add_row(log_info)
 
     @staticmethod
     def save_olympiad(user_email, olympiad_id):
